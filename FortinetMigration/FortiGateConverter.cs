@@ -2723,6 +2723,7 @@ namespace FortiGateMigration
                 cpRuleLayer.Name = cpRuleZone.SubPolicyName;
 
                 package.SubPolicies.Add(cpRuleLayer);
+                validatePackage(package);
 
                 CheckPoint_Rule cpSubRuleZone = new CheckPoint_Rule();
                 cpSubRuleZone.Name = ""; //"intrazone_sr_" + cpZoneIntra.Name;
@@ -3288,6 +3289,7 @@ namespace FortiGateMigration
                     cpLayer.Rules.Add(cpRuleCU);
 
                     package.SubPolicies.Add(cpLayer);
+                    validatePackage(package);
                 }
             }
             else

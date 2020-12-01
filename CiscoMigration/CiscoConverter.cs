@@ -2269,6 +2269,7 @@ namespace CiscoMigration
                     }
 
                     package.SubPolicies.Add(cpLayer);
+                    validatePackage(package);
                 }
             }
         }
@@ -3073,6 +3074,7 @@ namespace CiscoMigration
                     cpLayer.Rules.Add(cpCleanupRule);
 
                     package.SubPolicies.Add(cpLayer);
+                    validatePackage(package);
                 }
             }
         }
@@ -4298,6 +4300,7 @@ namespace CiscoMigration
                 {
                     regular2OptimizedLayers.Add(layer.Name, optimizedSubPolicyName);
                     optimizedPackage.SubPolicies.Add(optimizedLayer);
+                    validatePackage(optimizedPackage);
                 }
             }
 

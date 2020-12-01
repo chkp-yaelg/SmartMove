@@ -1175,7 +1175,7 @@ namespace NetScreenMigration
                     return null;
                 }
             }
-                
+
             string objName = ScreenOS2CheckPointServicesNameDic[serviceName];
             return _cpObjects.GetObject(objName);
         }
@@ -1250,7 +1250,7 @@ namespace NetScreenMigration
             return cpRange;
         }
 
-        private CheckPointObject GetSrcObjectByNameFromPolicy(string srcName, PolicyCommandSimplifier policy, bool isNAT= false)
+        private CheckPointObject GetSrcObjectByNameFromPolicy(string srcName, PolicyCommandSimplifier policy, bool isNAT = false)
         {
             CheckPointObject cpObject;
             string sourceName = srcName;
@@ -1302,7 +1302,7 @@ namespace NetScreenMigration
 
                     foreach (string src in policy.SrcAddr)
                     {
-                        srcGroup.Members.Add(GetSrcObjectByNameFromPolicy(src, policy,true).Name);
+                        srcGroup.Members.Add(GetSrcObjectByNameFromPolicy(src, policy, true).Name);
                     }
 
                     AddCheckPointObject(srcGroup);
@@ -1311,7 +1311,7 @@ namespace NetScreenMigration
             }
             else
             {
-                srcOrig = GetSrcObjectByNameFromPolicy(policy.SrcAddr.First(), policy,true);
+                srcOrig = GetSrcObjectByNameFromPolicy(policy.SrcAddr.First(), policy, true);
             }
 
             return srcOrig;
@@ -1369,7 +1369,7 @@ namespace NetScreenMigration
 
                     foreach (string dst in policy.DstAddr)
                     {
-                        dstGroup.Members.Add(GetDstObjectByNameFromPolicy(dst, policy,true).Name);
+                        dstGroup.Members.Add(GetDstObjectByNameFromPolicy(dst, policy, true).Name);
                     }
 
                     AddCheckPointObject(dstGroup);
@@ -1378,7 +1378,7 @@ namespace NetScreenMigration
             }
             else
             {
-                dstOrig = GetDstObjectByNameFromPolicy(policy.DstAddr.First(), policy,true);
+                dstOrig = GetDstObjectByNameFromPolicy(policy.DstAddr.First(), policy, true);
             }
 
             return dstOrig;
@@ -1693,7 +1693,7 @@ namespace NetScreenMigration
             CheckPointObject cpZone = _cpObjects.GetObject(zoneName);
             if (zoneName != ScreenOSCommand_Zone.Global && cpZone == null)
             {
-                if(ScreenOSCommand_Zone.SpecialPredefinedZones.Contains(zoneName))
+                if (ScreenOSCommand_Zone.SpecialPredefinedZones.Contains(zoneName))
                 {
                     /* Create predefined special zone*/
                     cpZone = new CheckPoint_Zone();
@@ -1777,7 +1777,7 @@ namespace NetScreenMigration
                         cpNetwork.ConvertedCommandId = address.Id;
                         cpNetwork.Comments = address.Comment;
                         ApplyConversionIncidentOnCheckPointObject(cpNetwork, address);
-                        inMultipleZones = IsNetworkObjectContainedInMultipleZones(cpNetwork, address);               
+                        inMultipleZones = IsNetworkObjectContainedInMultipleZones(cpNetwork, address);
                         if (!inMultipleZones)
                         {
                             CheckObjectNameValidity(cpNetwork, address, false);
@@ -1889,7 +1889,7 @@ namespace NetScreenMigration
                     {
                         continue;
                     }
-                    
+
                     /* Create check point Network group for interface */
                     CheckPoint_NetworkGroup netGroup = new CheckPoint_NetworkGroup();
                     netGroup.Name = ObjectNameGenerator.InterfaceName(ifc.InterfaceObjName);
@@ -1954,7 +1954,7 @@ namespace NetScreenMigration
                         }
                     }
 
-                    ApplyConversionIncidentOnCheckPointObject(netGroup,ifc);
+                    ApplyConversionIncidentOnCheckPointObject(netGroup, ifc);
                     CheckObjectNameValidity(netGroup, ifc);
                     AddCheckPointObject(netGroup);
                 }
@@ -2366,6 +2366,7 @@ namespace NetScreenMigration
                 cpLayer.Value.Rules.Add(cpInterBlockRule);
 
                 package.SubPolicies.Add(cpLayer.Value);
+                validatePackage(package);
             }
         }
 
@@ -2424,6 +2425,7 @@ namespace NetScreenMigration
                 cpLayer.Rules.Add(cpCleanupRule);
 
                 package.SubPolicies.Add(cpLayer);
+                validatePackage(package);
             }
         }
 
@@ -2591,7 +2593,7 @@ namespace NetScreenMigration
         }
 
         private void Add_Mip_Nat()
-        {        
+        {
             foreach (ScreenOSCommand_Policy natPolicy in ScreenOSPolicyCommands)
             {
                 if (natPolicy.PolicyNatType == ScreenOSCommand_Policy.PolicyNatTypeEnum.Mip
@@ -2880,8 +2882,8 @@ namespace NetScreenMigration
                     List<CheckPointObject> cpDipTranslatedObj;
                     List<bool> isPATEnabled;
                     List<bool> isEnabled;
-                    string comment ="";
-                    
+                    string comment = "";
+
                     if (!Prepare_ObjectsForDipNat(simpleDipPolicy, out cpDipOriginalObj, out cpDipTranslatedObj, out isEnabled, out isPATEnabled, out comment))
                     {
                         continue;
@@ -2921,7 +2923,7 @@ namespace NetScreenMigration
                     CheckPointObject destIpTranslated = null;
                     CheckPointObject destPortTranslated = null;
 
-                    if (!Prepare_ObjectsForPolicyBasedDestNat( simplePolicy, out  destIpTranslated,  out destPortTranslated))
+                    if (!Prepare_ObjectsForPolicyBasedDestNat(simplePolicy, out destIpTranslated, out destPortTranslated))
                     {
                         continue;
                     }
@@ -3085,13 +3087,13 @@ namespace NetScreenMigration
             foreach (string ifcGroup in zoneTrustNetGroup.Members)
             {
                 CheckPointObject ifcGroupObj = _cpObjects.GetObject(ifcGroup);
-                if(ifcGroupObj.Tag == "NAT")
+                if (ifcGroupObj.Tag == "NAT")
                 {
                     interfacesWithNAT.Add(ifcGroupObj);
                 }
             }
 
-            /* If no interface with NAT attached to Trust zone, exit function*/ 
+            /* If no interface with NAT attached to Trust zone, exit function*/
             if (interfacesWithNAT.Count == 0)
             {
                 return;
@@ -3102,7 +3104,7 @@ namespace NetScreenMigration
             {
                 srcObj = interfacesWithNAT.First();
             }
-            else if(zoneTrustNetGroup.Members.Count == interfacesWithNAT.Count)
+            else if (zoneTrustNetGroup.Members.Count == interfacesWithNAT.Count)
             {
                 srcObj = zoneTrustNetGroup;
             }
@@ -3189,7 +3191,7 @@ namespace NetScreenMigration
             }
         }
 
-        private bool Prepare_ObjectsForPolicyBasedDestNat(PolicyCommandSimplifier simplePolicy, out CheckPointObject destIpTranslated,out  CheckPointObject destPortTranslated)
+        private bool Prepare_ObjectsForPolicyBasedDestNat(PolicyCommandSimplifier simplePolicy, out CheckPointObject destIpTranslated, out CheckPointObject destPortTranslated)
         {
             destIpTranslated = null;
             destPortTranslated = null;
@@ -3327,13 +3329,13 @@ namespace NetScreenMigration
                         cpDipOriginalObj.Add(cpDipOriginalObjTemp);
                         isEnabled.Add(false);
                         isPATEnabled.Add(true);
-                        
+
                         interfaceWithHostObject++;
                     }
                 }
 
                 if (interfaceWithHostObject > 1)
-                {           
+                {
                     string errorTitle = string.Format("ScreenOS NAT policy object does not contain dip-id. NAT rules will be created as much as the number of attached interfaces to destination zone with host IP. NAT rules will be in a disabled mode");
                     string errorDescription = string.Format("Policy DIP object details: {0}.", natPolicy.Text);
                     _conversionIncidents.Add(new ConversionIncident(natPolicy.Id, errorTitle, errorDescription, ConversionIncidentType.ManualActionRequired));
@@ -3343,7 +3345,7 @@ namespace NetScreenMigration
                 {   /* If only one rule was created, set the enabled value by the policy configuration*/
                     comments = "ScreenOS NAT policy object does not contain dip-id. One NAT rule will be created according to attached interface to destination zone with host IP.";
                     isEnabled[isEnabled.IndexOf(isEnabled.Last())] = simplePolicy.IsEnabled;
-                }      
+                }
             }
             /* Create Objects for Dip*/
             else if (GetDipObjByDipId(dipId, out ifc))
@@ -3449,14 +3451,14 @@ namespace NetScreenMigration
 
                 /* Layer not found, create new layer*/
                 if (!isFound)
-                {   
+                {
                     /* Find first global in parent layer*/
                     int firstGlobal = 0;
                     foreach (CheckPoint_Rule layer in _cpPackages[0].ParentLayer.Rules)
                     {
                         if (layer.Tag == "global")
                         {
-                            break; 
+                            break;
                         }
                         firstGlobal++;
                     }
@@ -3485,7 +3487,7 @@ namespace NetScreenMigration
                     cpNewRule.Source.Add(cpSrcObject);
                     cpNewRule.Destination.Add(cpDstObject);
                     cpNewRule.Action = CheckPoint_Rule.ActionType.SubPolicy;
-                    cpNewRule.SubPolicyName = ObjectNameGenerator.SubPolicyByZonesName(cpSrcObject.Name,cpDstObject.Name);
+                    cpNewRule.SubPolicyName = ObjectNameGenerator.SubPolicyByZonesName(cpSrcObject.Name, cpDstObject.Name);
                     cpNewRule.Layer = _cpPackages[0].NameOfAccessLayer;
                     cpNewRule.Tag = "inter";
                     _cpPackages[0].ParentLayer.Rules.Insert(firstGlobal, cpNewRule);
@@ -3495,14 +3497,15 @@ namespace NetScreenMigration
                     cpLayer.Name = cpRule.Layer;
                     cpLayer.Rules.Add(cpRule);
                     /* Copy global and clean up rules to new layer*/
-                    for (int index = firstGlobal + 1; index < _cpPackages[0].ParentLayer.Rules.Count;++index)
+                    for (int index = firstGlobal + 1; index < _cpPackages[0].ParentLayer.Rules.Count; ++index)
                     {
                         cpLayer.Rules.Add(_cpPackages[0].ParentLayer.Rules[index].Clone());
                         cpLayer.Rules.Last().Layer = cpRule.Layer;
 
                     }
                     cpLayer.Rules.Last().Name = "Sub-Policy Cleanup rule";
-                    _cpPackages[0].SubPolicies.Insert(firstGlobal,cpLayer);
+                    _cpPackages[0].SubPolicies.Insert(firstGlobal, cpLayer);
+                    validatePackage(_cpPackages[0]);
                 }
             }
         }
@@ -3526,10 +3529,10 @@ namespace NetScreenMigration
         {
             RaiseConversionProgress(20, "Converting obects ...");
             _cpObjects.Initialize();   // must be first!!!
-            
+
             foreach (CheckPointObject cpObject in _cpObjects.GetPredefinedObjects())
             {
-                _objectNameGenerator.AddAppearanceCount(cpObject.Name,true);
+                _objectNameGenerator.AddAppearanceCount(cpObject.Name, true);
             }
 
             UploadPredefinedServices();
@@ -3646,7 +3649,7 @@ namespace NetScreenMigration
                 foreach (ScreenOSCommand command in ScreenOSAllCommands)
                 {
                     string lineStyle = "";
-                    string indentation  = "";
+                    string indentation = "";
 
                     if (!command.KnownCommand)
                     {
@@ -4005,7 +4008,7 @@ namespace NetScreenMigration
                             {
                                 sbCurRuleNumberColumnTag.Append(HtmlDisabledImageTag);
                             }
-                            sbCurRuleNumberColumnTag.Append("</td>"); 
+                            sbCurRuleNumberColumnTag.Append("</td>");
                             file.WriteLine(sbCurRuleNumberColumnTag.ToString());
 
                             file.WriteLine("      <td>" + ruleEntry.Value.Name + "</td>");
