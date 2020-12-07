@@ -552,6 +552,13 @@ namespace SmartMove
                     paConverter.LDAPAccoutUnit = ldapAccountUnit.Trim();
                     vendorConverter = paConverter;
                     break;
+                case Vendor.PaloAltoPanorama:
+                    PanoramaConverter panoramaConverter = new PanoramaConverter();
+                    panoramaConverter.OptimizeConf = SkipUnusedObjectsConversion;
+                    panoramaConverter.ConvertUserConf = ConvertUserConfiguration;
+                    panoramaConverter.LDAPAccoutUnit = ldapAccountUnit.Trim();
+                    vendorConverter = panoramaConverter;
+                    break;
                 default:
                     throw new InvalidDataException("Unexpected!!!");
             }
@@ -568,20 +575,32 @@ namespace SmartMove
                 Mouse.OverrideCursor = null;
                 EnableDisableControls(true);
                 OutputPanel.Visibility = Visibility.Collapsed;
-                ShowMessage(string.Format("Could not convert configuration file.\n\nMessage: {0}\nModule:\t{1}\nClass:\t{2}\nMethod:\t{3}", ex.Message, ex.Source, ex.TargetSite.ReflectedType.Name, ex.TargetSite.Name), MessageTypes.Error);
+                if (ex is InvalidDataException && ex.Message != null && ex.Message.Contains("Policy exceeds the maximum number"))
+                {
+                    ShowMessage(String.Format("{1}{0}{2}{0}{3}", Environment.NewLine, "SmartMove is unable to convert the provided policy.",
+                                                "Reason: Policy exceeds the maximum number of supported policy layers.",
+                                                "To assure the smooth conversion of your data, it is recommended to contact Check Point Professional Services by sending an e-mail to"),
+                    MessageTypes.Error, "ps@checkpoint.com", "mailto:ps@checkpoint.com");
+                }
+                else
+                {
+                    ShowMessage(string.Format("Could not convert configuration file.\n\nMessage: {0}\nModule:\t{1}\nClass:\t{2}\nMethod:\t{3}", ex.Message, ex.Source, ex.TargetSite.ReflectedType.Name, ex.TargetSite.Name), MessageTypes.Error);
+                }
                 return;
             }
+
+            vendorParser.Export(targetFolder + vendorFileName + ".json");
 
             UpdateProgress(90, "Exporting Check Point configuration ...");
             vendorConverter.ExportConfigurationAsHtml();
             vendorConverter.ExportPolicyPackagesAsHtml();
             if (ConvertNATConfiguration)
             {
-		ConvertedNatPolicyLink.MouseUp -= Link_OnClick;
+                ConvertedNatPolicyLink.MouseUp -= Link_OnClick;
                 vendorConverter.ExportNatLayerAsHtml();
 
                 //check if the user asked for NAT policy and no rules found.
-                if (vendorConverter.RulesInNatLayer() == 0 ) // anly if 0 then we do not show NAT report.
+                if (vendorConverter.RulesInNatLayer() == 0) // anly if 0 then we do not show NAT report.
                 {
                     ConvertedNatPolicyLink.Style = (Style)ConvertedNatPolicyLink.FindResource("NormalTextBloclStyle");
                 }
@@ -802,9 +821,16 @@ namespace SmartMove
 
         public static void ShowMessage(string message, MessageTypes messageType)
         {
+            ShowMessage(message, messageType, null, null);
+        }
+        public static void ShowMessage(string message, MessageTypes messageType, string messageLinkText, string messageLinkValue)
+        {
             var messageWindow = new MessageWindow
             {
-                Message = message, MessageType = messageType
+                Message = message,
+                MessageType = messageType,
+                MessageLinkText = messageLinkText,
+                MessageLinkValue = messageLinkValue
             };
 
             messageWindow.ShowDialog();
