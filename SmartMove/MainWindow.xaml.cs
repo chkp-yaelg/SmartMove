@@ -802,9 +802,16 @@ namespace SmartMove
 
         public static void ShowMessage(string message, MessageTypes messageType)
         {
+            ShowMessage(message, messageType, null, null);
+        }
+        public static void ShowMessage(string message, MessageTypes messageType, string messageLinkText, string messageLinkValue)
+        {
             var messageWindow = new MessageWindow
             {
-                Message = message, MessageType = messageType
+                Message = message,
+                MessageType = messageType,
+                MessageLinkText = messageLinkText,
+                MessageLinkValue = messageLinkValue
             };
 
             messageWindow.ShowDialog();
