@@ -428,10 +428,13 @@ namespace PaloAltoMigration
         public PA_DestinationTranslation DestinationTranslation { get; set; }
 
         [XmlElement("dynamic-destination-translation")]
-        public PA_DynamicDestinationTranslation DynamicDestinationTranslation { get;set;}
+        public PA_DynamicDestinationTranslation DynamicDestinationTranslation { get; set; }
 
         [XmlElement("disabled")]
         public string Disabled { get; set; }
+
+        [XmlElement("nat-type")]
+        public string NatType { get; set; }
     }
 
     public class PA_SourceTranslation

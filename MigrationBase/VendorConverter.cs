@@ -49,6 +49,7 @@ namespace MigrationBase
         protected const string HtmlSubPolicyArrowImageTagFormat = "<img id='{0}' style='width:16px;height:16px;vertical-align:middle;' src='{1}'/>";
         protected const string HtmlToolLogoImageSource = "src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACEAAAAgCAYAAACcuBHKAAAACXBIWXMAAAsSAAALEgHS3X78AAABkElEQVRYw+2XvXGDQBCFv/MoNx2YbEPRgZhRA+rA6sC4A7kD1IFUgdUAY9wBhJvJHeAKcMDJw2AQf5JwoBcecLx7b/exmDzPmRoP/APcSVyHRGR8IrMjMs7USjwDMZFxp7ZjDiRExp+6Jh6BDyITtN1oWnOi8HcFdJHXtXZUsQcClnnWn0RkNkBgTzUWKbBimR+rF2ZnCOwaTnVxzBoIBDUEUiABjrexIzJZyYJvK2PcKSfgo7L6yjIP+ylRbFSugW4E/qIz+fYWHUYgBbzTs6q6UlXvljmxB/xTF6jqGngH4iYidYWZ2JPM7Ya/UNUQyERkc0a1qnLrUnit7P4tShQV7NuCWtuXO6oaAy8DlHGGtWhBJLQEPOAAPPV9u6q6VtGyyv1qwvoZjyBwqCzHvWLb+l8n/2fTZqXAcoFFZX0rIkEnEqrq2BMsLtgxqYjctEWpUcAb9CkfYccJGXAQkeOoecIWZliJ8bfGnLjGoCsiO5sZX5NO2yKSAJ61YbqRX0QyEfGB7TVImPu/6J1EBT9qv6X93O05TAAAAABJRU5ErkJggg=='";
         protected const string HtmlCPLogoImageSource = "src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHYAAAAUCAYAAABYm8lAAAAACXBIWXMAAAsSAAALEgHS3X78AAAHwklEQVRo3u1aaWwUZRh+tpwC7Q5Xg1KWxRhDgaYrECoe7DSgQcGw1ggKMSxREtBEy79CSLokGggkspKYEmLS5Sj+IWSbICEQZIoVoQJOQUCOyDKAIJI6WxoRsLv+6Ptt3375Zo/W/WH0TSY7813z3tes67dP6gwAfuQHKketWWFIY14AIQBLpfFGGjfpOUhXNRvLF/gAhAFE6MoWjAxzYQB2jueZRHNvQBPv659uVfsDFy786ko9Fw0GSosTPdacsAoAABWeRLYMNAC4AVwDECVEAgAWANDpMkkB/IRsvkGjdxk57hMG0SSdVU5zAaI51/OQozL4AQynewNAtaNgb8RdWLK3EO+8OwmaeyDs+EOcPduGs4fbYFkdcLsHoqxsBCyrA5bVgYa3H2YSrsaEuoq0WUCIrloSthf/LtAVXskgAQdz8AKVOVq4DLYwBEfBbmnuD9+MMaipcVa4DetNLF7yFOrqzuP8xTOZBBskoTZKQuXCDRAzZEZxzY8pGOWl8wVEaJ28JsA8QCwLhgdpn0kKly3EiMbNkpLKFizjqdOzybxXiOHB8fZK49U8lDgKdu+P/VDz2ggAwO6GK7CsDtSs7ilka/8xxOd74HYPxL0/MxIbYAJMt8bLCAMxqFzBcJ3d10vztQCWMcGp1ghm6A64RCgPaHVQxFxdfVThamU8a8mtRwivWvr1K0JalOah2IsCFRYX7nQNa+6BAICxo77H48O2YXfDFTRv2ottn57EvHkHcOfM1R6uO8v4YWbQdENyR+VEvAvABIrNfiJOJ4G10pyL3FmchKGRogjBiHOGExPKHRIVLlS9F+7Ry86N0b3fAc/6NMolhFhJe56hPR8RHyvpTOHGU7QoBdtO1ldW1mWx350uReWCjbhy7DJ27riMc+d+x6JXirFo5Uz8dHxVtoLtLXzGNJq7T40REmAuzaBxN1lqgO7Xsb02zTUpkjMh1MYchGqwKwbgKoDxxPQIw1NX4AkpjKi8isGMIiIloraUUcPRFY91J7uj8Y02nDr+S9fDoYMYrc/Gc7O2Ysqs7fB4pmLypE4sXNiJlusF+RJsNIM2QxErNWleVZrEmKXojIlutr43iUyMeZ4w4eAmJbIVtNVnSBZjigQpIyilUcIEG6o5huVvlaBmtQ+jq5dj6tzJ2LX/A3g8wwAA586/iTlzxmbzrlYFs2UIA0jmUMeNT5MdCkbmkmGL5E7kAtnu1RVXiGepafDMCzgmT6XFSdy69QceFGqoeHUiAGDl+5MAAFVVE3omUVZHtvWWiGnBDAmWwe7TQRPFLl1hsT4pvmlpGgJR1iQJsNIrkiH+ZQMmi7uqWJwXcPSfFZ4EIpFLqKt7AW5KonrE4faH+Lb5NlavbkFNTUs27xIJzFIHwYbIApty6DQZzIXKcekICclMs0YWuMlwaaX56j7y2KazxivoDmcRbnLpnmW22OD0v7Cl+SZemtaAQWNG9phrbr6dsuonipKYPS4Jv56x8xSjrLSeriATjEjp4zkyMkzrNzML9ZLyxMnibCZEkeDwNU4uNwjgB5qPKmJdLiAUrZ4lUDrLlCN9VByh5KlEzVGwJe4kNs57hBNWJ05Y93HprgsPhxThmtVBmTdw4Y4LF+64UnXv2gMDsHb2I7xR1ok0taFNzPJL9VlTL/rCNjEoLPWexVk2Uxyxxs9ifpApg8qFrvuHXLJB5YiMZyPh0JdYGyb8y7nVuuSPADfiLhy63A+HLhWg5XoBViw5iC/3zcfrVV6MGTMEG9Z38X3X5i1Ys2kxAGDFkoOp+6opndg471GqRab4CCDHQcHEvCUS/0XoEWM/PjwA+tZBMB97ErcSCcycdgvX4++hpGRolwv+5nZq7ec756Jw6H18uGw/mk9OzKVRwa3N6ENZ8T9kkxW3P3AhcrJfaqKwcACGFI6CxzMM06cOwI2LO2BZc7rbQaUxFI+M4+tjU7D/yNTUeNHgjK01jcUrHz2bUgLQCaAf29cGwGKJjihjYqwF6aXLlp55bcnHbKnmNVmnymD4mAxvTXqOKWjg9AmvZEs02rRGY++XcfVJYcnLcPZJvBkh1+opwd5kljbO/QVeDK7FqdN38dU+i8qZZ1FafA8zxnXVuKePdgt5xrgEStxJlLiTeOnpRLqsLcQ6RgGKX60swQgRch0AhtH8OvIsPzMmRhmDxJmiIa5JJUaMdYR44zwiJXBtAI6ysBCk+KWz9qXOvIzOerStUu85JGXZ49H1RUuj9Y2s1NIVuIaYgvDulMESL8EbTQprvh6CLS1OYGxREjfbXWjY8zIqWo5jUnEC659PoLQqiaJByb56B5tZl0holpGQTEkL9xABtUSkjwj0sr1RdH8cDyo8g52mPNIV+0YwpnmZ9YYY00WtbWdBg84YHWDvWobuL01mmk6T5lAGxVidHWJZu620WABoWvkgn25fYy22ICPeJI3ugPojABjT+L8rIkxTfVKvlLs/M0OpYkjuzovuT2CCWT7mMoOsXaiigYcLoRw6exbr/QoaTeq8iaZJlJVx2TRCYhnr2DyAyayumrnDpQC2A7gCoATO/2LgQtdYB8tgcY8nY2FWSkTS1Ioh5kZNhqcpWYHO6AizvVGJhrVMeFGqhePME4jS6Zqibha4CqusloQaZnW5U6PDABD6G0N6q38NHi2bAAAAAElFTkSuQmCC'";
+        protected const int SubPoliciesMaxNumber = 249;
 
         #endregion
 
@@ -123,7 +124,7 @@ namespace MigrationBase
                 ConversionProgress(progress, title);
             }
         }
-        
+
         #endregion
 
         #region Methods
@@ -217,7 +218,7 @@ namespace MigrationBase
         public abstract void ExportConfigurationAsHtml();
         public abstract void ExportPolicyPackagesAsHtml();
         protected abstract string GetVendorName();
-        
+
         #endregion
 
         public void ExportNatLayerAsHtml()
@@ -458,7 +459,7 @@ namespace MigrationBase
                     }
                     file.WriteLine(curRuleHtmlPart);
                     curRuleHtmlFull.Add(curRuleHtmlPart);
-					
+
                     var dummy = ConversionIncidentType.None;
                     curRuleHtmlPart = "      <td>" + RuleStringList2Html(rule.Target, false, CheckPointObject.All, ref dummy) + "</td>";
                     file.WriteLine(curRuleHtmlPart);
@@ -505,7 +506,7 @@ namespace MigrationBase
                     file.WriteLine("<div id=\"PolicyConversionErrors\" style='margin-left: 20px;'><h3>Conversion Errors</h3></div>");
                     file.WriteLine("<table style='background-color: rgb(255,255,150);'>");
                     file.WriteLine("   <tr>");
-                    file.WriteLine("      <th class='errors_header'>No.</th> <th class='errors_header'>Source</th> <th class='errors_header'>Destination</th> <th class='errors_header'>Service</th> <th class='errors_header'>Translated-Source</th> <th class='errors_header'>Translated-Destination</th> <th class='errors_header'>Translated-Service</th> <th>Install On</th> <th class='errors_header'>Comments</th>");                    
+                    file.WriteLine("      <th class='errors_header'>No.</th> <th class='errors_header'>Source</th> <th class='errors_header'>Destination</th> <th class='errors_header'>Service</th> <th class='errors_header'>Translated-Source</th> <th class='errors_header'>Translated-Destination</th> <th class='errors_header'>Translated-Service</th> <th>Install On</th> <th class='errors_header'>Comments</th>");
                     file.WriteLine("   </tr>");
 
                     foreach (var ruleHtml in rulesWithConversionErrors)
@@ -526,7 +527,7 @@ namespace MigrationBase
                     file.WriteLine("<div id=\"PolicyConversionInfos\" style='margin-left: 20px;'><h3>Conversion Notifications</h3></div>");
                     file.WriteLine("<table style='background-color: rgb(220,240,247);'>");
                     file.WriteLine("   <tr>");
-                    file.WriteLine("      <th class='errors_header'>No.</th> <th class='errors_header'>Source</th> <th class='errors_header'>Destination</th> <th class='errors_header'>Service</th> <th class='errors_header'>Translated-Source</th> <th class='errors_header'>Translated-Destination</th> <th class='errors_header'>Translated-Service</th> <th>Install On</th> <th class='errors_header'>Comments</th>");                    
+                    file.WriteLine("      <th class='errors_header'>No.</th> <th class='errors_header'>Source</th> <th class='errors_header'>Destination</th> <th class='errors_header'>Service</th> <th class='errors_header'>Translated-Source</th> <th class='errors_header'>Translated-Destination</th> <th class='errors_header'>Translated-Service</th> <th>Install On</th> <th class='errors_header'>Comments</th>");
                     file.WriteLine("   </tr>");
 
                     foreach (var ruleHtml in rulesWithConversionInfos)
@@ -540,7 +541,7 @@ namespace MigrationBase
                 file.WriteLine("</body>");
                 file.WriteLine("</html>");
             }
-			
+
         }
 
         protected virtual bool AddCheckPointObject(CheckPointObject cpObject)
@@ -739,7 +740,7 @@ namespace MigrationBase
                             UInt32[] range2 = NetworkUtils.GetNetworkRangeInNumbers(network2.Subnet, network2.Netmask);
 
                             // Check networks ranges overlap
-                            if (((range2[0] >= range1[0]) && (range2[0] <= range1[1])) || 
+                            if (((range2[0] >= range1[0]) && (range2[0] <= range1[1])) ||
                                 ((range1[0] >= range2[0]) && (range1[0] <= range2[1])))
                             {
                                 if (range1[1] - range1[0] > range2[1] - range2[0])
@@ -841,6 +842,7 @@ namespace MigrationBase
         protected void CreateObjectsScript()
         {
             const int publishLatency = 100;
+            const int groupsMaxBulkSize = 100;
 
             using (var file = new StreamWriter(ObjectsScriptFile, false))
             {
@@ -976,12 +978,26 @@ namespace MigrationBase
                             continue;
                         }
 
-                        file.WriteLine(CLIScriptBuilder.GenerateObjectScript(obj));
-
-                        objectsCount++;
-                        if (objectsCount % publishLatency == 0)
+                        if (obj.Members.Count == 0)
                         {
-                            file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
+                            file.WriteLine(CLIScriptBuilder.GenerateObjectScript(obj));
+                        }
+                        else
+                        {
+                            obj.MembersMaxPublishSize = groupsMaxBulkSize;
+
+                            for (int i = 0; i < obj.Members.Count; i += groupsMaxBulkSize)
+                            {
+                                obj.MembersPublishIndex = i;
+
+                                file.WriteLine(CLIScriptBuilder.GenerateObjectScript(obj));
+
+                                objectsCount++;
+                                if (objectsCount % publishLatency == 0)
+                                {
+                                    file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
+                                }
+                            }
                         }
                     }
                     file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
@@ -1179,13 +1195,27 @@ namespace MigrationBase
                     int objectsCount = 0;
                     foreach (CheckPoint_ServiceGroup obj in _cpServiceGroups)
                     {
-                        file.WriteLine(CLIScriptBuilder.GenerateObjectScript(obj));
+                        obj.MembersMaxPublishSize = groupsMaxBulkSize;
+                        for (int i = 0; i < obj.Members.Count; i += groupsMaxBulkSize)
+                        {
+                            obj.MembersPublishIndex = i;
+
+                            file.WriteLine(CLIScriptBuilder.GenerateObjectScript(obj));
+
+                            objectsCount++;
+                            if (objectsCount % publishLatency == 0)
+                            {
+                                file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
+                            }
+                        }
+
+                        /* file.WriteLine(CLIScriptBuilder.GenerateObjectScript(obj));
 
                         objectsCount++;
                         if (objectsCount % publishLatency == 0)
                         {
                             file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
-                        }
+                        } */
                     }
                     file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
                 }
@@ -1243,7 +1273,7 @@ namespace MigrationBase
 
                 if (_cpAccessRoles.Count > 0)
                 {
-                    file.WriteLine("if [ $NUSE -ne 0 ]; then");
+                    file.WriteLine("if [[ $NUSE -ne 0 ]]; then");
 
                     file.WriteLine("  " + CLIScriptBuilder.GenerateInstructionScript(string.Format("Create {0} Objects (x{1}) ", "Access Role", _cpAccessRoles.Count)));
                     int objectsCount = 0;
@@ -1266,12 +1296,12 @@ namespace MigrationBase
                         for (int i = 0; i < obj.Users.Count; i++)
                         {
                             var sb_set = new StringBuilder();
-                            
+
                             sb_set.Append("cmd='mgmt_cli ")
                                 .Append("set access-role ")
                                 .Append("name " + "\"" + obj.SafeName() + "\" ");
 
-                            if(obj.Networks.Count == 0)
+                            if (obj.Networks.Count == 0)
                             {
                                 sb_set.Append("networks \"any\" ");
                             }
@@ -1285,7 +1315,7 @@ namespace MigrationBase
                                 .Append("users.add.selection." + i + " \"" + obj.Users[i].Name + "\" ")
                                 .Append(!(string.IsNullOrWhiteSpace(obj.Users[i].BaseDn)) ? "users.add.base-dn \"" + obj.Users[i].BaseDn + "\"" : "")
                                 .Append(" ignore-warnings true -s id.txt --user-agent mgmt_cli_smartmove'");
-                            
+
                             file.WriteLine("  " + sb_set.ToString());
                             file.WriteLine("  " + "run_command");
                         }
@@ -1306,6 +1336,14 @@ namespace MigrationBase
             }
         }
 
+        protected void validatePackage(CheckPoint_Package package)
+        {
+            if (package?.SubPolicies != null && package.SubPolicies.Count > SubPoliciesMaxNumber)
+            {
+                throw new InvalidDataException("Policy exceeds the maximum number of supported policy layers.");
+            }
+        }
+
         protected void CreatePackagesScript()
         {
             const int publishLatency = 100;
@@ -1313,6 +1351,7 @@ namespace MigrationBase
 
             foreach (CheckPoint_Package package in _cpPackages)
             {
+                validatePackage(package);
                 ++packageNumber;
 
                 string filename = _targetFolder + "\\" + package.Name + ".sh";
@@ -1355,15 +1394,15 @@ namespace MigrationBase
                     file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
 
                     // Enabling Applications and URL Filtering in parent layer
-                    if(package.ParentLayer.ApplicationsAndUrlFiltering)
+                    if (package.ParentLayer.ApplicationsAndUrlFiltering)
                     {
                         file.WriteLine("echo 'Enabling Applications and URL Filtering in parent layer vsys1_policy Network'");
-                        file.WriteLine("cmd='mgmt_cli set access-layer " + 
-                                        "name \"" + package.ParentLayer.Name + "\" " + 
-                                        "applications-and-url-filtering \"true\" " + 
+                        file.WriteLine("cmd='mgmt_cli set access-layer " +
+                                        "name \"" + package.ParentLayer.Name + "\" " +
+                                        "applications-and-url-filtering \"true\" " +
                                         "ignore-warnings true -s id.txt --user-agent mgmt_cli_smartmove'");
                         file.WriteLine("run_command");
-                    file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
+                        file.WriteLine(CLIScriptBuilder.GeneratePublishScript());
                     }
                     file.WriteLine(CLIScriptBuilder.GenerateInstructionScript(string.Format("Add rules to parent layer {0}", package.NameOfAccessLayer)));
                     // !!! Attention !!! -- the rules are created in the reverse order but will be inserted at the TOP (!!!) position,
@@ -1586,7 +1625,7 @@ namespace MigrationBase
                         var sb_add = new StringBuilder();
                         sb_add.Append("add access-role ")
                             .Append("name " + "\"" + obj.SafeName() + "\" ");
-                        
+
                         if (obj.Networks.Count == 0)
                         {
                             sb_add.Append("networks \"any\" ");
@@ -1606,7 +1645,7 @@ namespace MigrationBase
                         for (int i = 0; i < obj.Users.Count; i++)
                         {
                             file.WriteLine("<div id=\"" + obj.Name + "_user_" + i + "\">");
-                            
+
                             var sb_set = new StringBuilder();
                             sb_set.Append("set access-role ")
                                 .Append("name " + "\"" + obj.SafeName() + "\" ");
@@ -1625,9 +1664,9 @@ namespace MigrationBase
                                 .Append("users.add.selection." + i + " \"" + obj.Users[i].Name + "\" ")
                                 .Append(!(string.IsNullOrWhiteSpace(obj.Users[i].BaseDn)) ? "users.add.base-dn \"" + obj.Users[i].BaseDn + "\"" : "");
 
-                            
+
                             file.WriteLine(sb_set.ToString());
-                            
+
                             file.WriteLine("</div>");
                         }
                     }
@@ -1745,9 +1784,9 @@ namespace MigrationBase
                 }
                 else
                 {
-                    
-                     res += "<div><a href='./" + Path.GetFileName(ObjectsHtmlFile) + "#" + item + "' target='_blank'>" + item + "</a></div>";
-                    
+
+                    res += "<div><a href='./" + Path.GetFileName(ObjectsHtmlFile) + "#" + item + "' target='_blank'>" + item + "</a></div>";
+
                 }
             }
 
@@ -1884,5 +1923,197 @@ namespace MigrationBase
         }
 
         #endregion
+
+        protected void PostProcessNatRule64(CheckPoint_NAT_Rule natRule)
+        {
+            var isSourceHost = false;
+            var isSourceNetwork = false;
+            var isSourceIpv6 = false;
+            var source = natRule?.Source != null ? natRule?.Source : natRule?.Destination;
+            if (source != null)
+            {
+                isSourceHost = source is CheckPoint_Host;
+                isSourceNetwork = source is CheckPoint_Network;
+                if (isSourceHost)
+                {
+                    var host = (CheckPoint_Host)source;
+                    isSourceIpv6 = NetworkUtils.IsValidIpv6(host.IpAddress);
+                }
+                if (isSourceNetwork)
+                {
+                    var network = (CheckPoint_Network)source;
+                    isSourceIpv6 = NetworkUtils.IsValidIpv6(network.Subnet);
+                }
+            }
+            if (!isSourceIpv6)
+            {
+                // destination is not Ipv6, no sense to continue
+                return;
+            }
+
+            var isTranslatedSourceHost = false;
+            var isTranslatedSourceNetwork = false;
+            var isTranslatedSourceIpv4 = false;
+            if (natRule?.TranslatedSource != null)
+            {
+                isTranslatedSourceHost = natRule.TranslatedSource is CheckPoint_Host;
+                isTranslatedSourceNetwork = natRule.TranslatedSource is CheckPoint_Network;
+                if (isTranslatedSourceHost)
+                {
+                    var host = (CheckPoint_Host)natRule.TranslatedSource;
+                    isTranslatedSourceIpv4 = NetworkUtils.IsValidIpv4(host.IpAddress);
+                }
+                if (isTranslatedSourceNetwork)
+                {
+                    var network = (CheckPoint_Network)natRule.TranslatedSource;
+                    isTranslatedSourceIpv4 = NetworkUtils.IsValidIpv4(network.Subnet);
+                }
+            }
+            if (!isTranslatedSourceIpv4)
+            {
+                // translated source is not Ipv4, no sense to continue
+                return;
+            }
+
+            // change NAT rule method
+            natRule.Method = CheckPoint_NAT_Rule.NatMethod.Nat64;
+
+            //  a address-range should be used instead of network of host for translated source
+            IPRange ipRange;
+            if (isTranslatedSourceNetwork)
+            {
+                var network = (CheckPoint_Network)natRule.TranslatedSource;
+                ipRange = network.GetIPRanges().Ranges[0];
+            }
+            else // if translated source is a host
+            {
+                var host = (CheckPoint_Host)natRule.TranslatedSource;
+                ipRange = host.GetIPRanges().Ranges[0];
+            }
+            var checkpointRange = new CheckPoint_Range();
+            checkpointRange.RangeFrom = NetworkUtils.Number2Ip(ipRange.Minimum);
+            checkpointRange.RangeTo = NetworkUtils.Number2Ip(ipRange.Maximum);
+            checkpointRange.Name = "r_" + checkpointRange.RangeFrom + "-" + checkpointRange.RangeTo;
+            if (_cpObjects.GetObject(checkpointRange.Name) == null)
+            {
+                AddCheckPointObject(checkpointRange);
+            }
+            natRule.TranslatedSource = checkpointRange;
+        }
+
+        protected void PostProcessNatRule46(CheckPoint_NAT_Rule natRule)
+        {
+            var isSourceHost = false;
+            var isSourceNetwork = false;
+            var isSourceIpv4 = false;
+            var source = natRule?.Source != null ? natRule?.Source : natRule?.Destination;
+            if (source != null)
+            {
+                isSourceHost = source is CheckPoint_Host;
+                isSourceNetwork = source is CheckPoint_Network;
+                if (isSourceHost)
+                {
+                    var host = (CheckPoint_Host)source;
+                    isSourceIpv4 = NetworkUtils.IsValidIpv4(host.IpAddress);
+                }
+                if (isSourceNetwork)
+                {
+                    var network = (CheckPoint_Network)source;
+                    isSourceIpv4 = NetworkUtils.IsValidIpv4(network.Subnet);
+                }
+            }
+            if (!isSourceIpv4)
+            {
+                // destination is not Ipv4, no sense to continue
+                return;
+            }
+
+            var isTranslatedSourceHost = false;
+            var isTranslatedSourceNetwork = false;
+            var isTranslatedSourceIpv6 = false;
+            if (natRule?.TranslatedSource != null)
+            {
+                isTranslatedSourceHost = natRule.TranslatedSource is CheckPoint_Host;
+                isTranslatedSourceNetwork = natRule.TranslatedSource is CheckPoint_Network;
+                if (isTranslatedSourceHost)
+                {
+                    var host = (CheckPoint_Host)natRule.TranslatedSource;
+                    isTranslatedSourceIpv6 = NetworkUtils.IsValidIpv6(host.IpAddress);
+                }
+                if (isTranslatedSourceNetwork)
+                {
+                    var network = (CheckPoint_Network)natRule.TranslatedSource;
+                    isTranslatedSourceIpv6 = NetworkUtils.IsValidIpv6(network.Subnet);
+                }
+            }
+            if (!isTranslatedSourceIpv6)
+            {
+                // translated source is not Ipv6, no sense to continue
+                return;
+            }
+
+            // change NAT rule method
+            natRule.Method = CheckPoint_NAT_Rule.NatMethod.Nat46;
+        }
+
+        protected bool isNatRule46AndHasNonOriginTranslatedService(CheckPoint_NAT_Rule natRule)
+        {
+            return natRule != null
+                    && (isCheckPointObjectIpv4(natRule.Source) || isCheckPointObjectIpv4(natRule.Destination))
+                    && (isCheckPointObjectIpv6(natRule.TranslatedSource))
+                    && (natRule.TranslatedService != null);
+        }
+
+        protected bool isNatRule46AndTranslatedSourceIsHost(CheckPoint_NAT_Rule natRule)
+        {
+            return natRule != null
+                    && (isCheckPointObjectIpv4(natRule.Source) || isCheckPointObjectIpv4(natRule.Destination))
+                    && (isCheckPointObjectIpv6(natRule.TranslatedSource))
+                    && (natRule.TranslatedSource is CheckPoint_Host);
+        }
+        protected bool isNatRule46AndOriginalDestinationIsNotHost(CheckPoint_NAT_Rule natRule)
+        {
+            return natRule != null
+                    && (isCheckPointObjectIpv4(natRule.Source) || isCheckPointObjectIpv4(natRule.Destination))
+                    && (isCheckPointObjectIpv6(natRule.TranslatedSource))
+                    && !(natRule.Destination is CheckPoint_Host);
+        }
+
+        private bool isCheckPointObjectIpv6(CheckPointObject cpObj)
+        {
+            if (cpObj == null)
+            {
+                return false;
+            }
+            if (cpObj is CheckPoint_Host)
+            {
+                var host = (CheckPoint_Host)cpObj;
+                return NetworkUtils.IsValidIpv6(host.IpAddress);
+            }
+            if (cpObj is CheckPoint_Network)
+            {
+                var network = (CheckPoint_Network)cpObj;
+                return NetworkUtils.IsValidIpv6(network.Subnet);
+            }
+            return false;
+        }
+        private bool isCheckPointObjectIpv4(CheckPointObject cpObj)
+        {
+            if (cpObj == null)
+            {
+                return false;
+            }
+            if (cpObj is CheckPoint_Host)
+            {
+                var host = (CheckPoint_Host)cpObj;
+                return NetworkUtils.IsValidIpv4(host.IpAddress);
+            }
+            if (cpObj is CheckPoint_Network)
+            {
+                var network = (CheckPoint_Network)cpObj;
+                return NetworkUtils.IsValidIpv4(network.Subnet);
+            }
+            return false;
+        }
     }
 }

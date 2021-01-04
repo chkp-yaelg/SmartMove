@@ -152,7 +152,7 @@ namespace JuniperMigration
             public bool IsStaticMirrorRule { get; set; }
             public List<string> SourceZonesOrInterfaces = new List<string>();
         }
-        
+
         #endregion
 
         #region Private Members
@@ -187,7 +187,7 @@ namespace JuniperMigration
         {
             get { return _juniperZonePolicies ?? (_juniperZonePolicies = _juniperParser.Filter("_ZonePolicy")); }
         }
-        
+
         #endregion
 
         #region Private Methods
@@ -254,9 +254,9 @@ namespace JuniperMigration
                     }
                     else
                     {
-                    AddCheckPointObject(cpHost);
+                        AddCheckPointObject(cpHost);
+                    }
                 }
-            }
             }
 
             foreach (Juniper_Network network in _juniperParser.Filter("_Network"))
@@ -278,9 +278,9 @@ namespace JuniperMigration
                     }
                     else
                     {
-                    AddCheckPointObject(cpNetwork);
+                        AddCheckPointObject(cpNetwork);
+                    }
                 }
-            }
             }
 
             foreach (Juniper_Range range in _juniperParser.Filter("_Range"))
@@ -302,9 +302,9 @@ namespace JuniperMigration
                     }
                     else
                     {
-                    AddCheckPointObject(cpRange);
+                        AddCheckPointObject(cpRange);
+                    }
                 }
-            }
             }
 
             var groupsWithNonCreatedMembers = new List<CheckPoint_NetworkGroup>();
@@ -1071,6 +1071,7 @@ namespace JuniperMigration
                 }
 
                 package.SubPolicies.Add(cpLayer);
+                validatePackage(package);
             }
         }
 
@@ -1081,7 +1082,7 @@ namespace JuniperMigration
             {
                 bool isZonelessGlobalRule = globalPolicyRule.SourceZones.Count == 1 && globalPolicyRule.SourceZones[0] == JuniperObject.Any &&
                                             globalPolicyRule.DestinationZones.Count == 1 && globalPolicyRule.DestinationZones[0] == JuniperObject.Any;
-                if(isZonelessAllGlobalRules && !isZonelessGlobalRule)
+                if (isZonelessAllGlobalRules && !isZonelessGlobalRule)
                 {
                     isZonelessAllGlobalRules = false;
                 }
@@ -1108,6 +1109,7 @@ namespace JuniperMigration
                 cpSubLayer4GlobalRules.Name = cpRule4GlobalLayer.SubPolicyName;
 
                 package.SubPolicies.Insert(0, cpSubLayer4GlobalRules); // insert at the begging becuase Global Rules should be created before all policy
+                validatePackage(package);
 
                 foreach (var globalPolicyRule in _juniperParser.GetGlobalPolicyRules())
                 {
@@ -1201,7 +1203,7 @@ namespace JuniperMigration
                             }
                         }
                     }
-					
+
                     // Append the global policy rules BELOW the existing sub-policies.
                     bool isZonelessGlobalRule = globalPolicyRule.SourceZones.Count == 1 && globalPolicyRule.SourceZones[0] == JuniperObject.Any &&
                                                 globalPolicyRule.DestinationZones.Count == 1 && globalPolicyRule.DestinationZones[0] == JuniperObject.Any;
@@ -1256,6 +1258,7 @@ namespace JuniperMigration
                                 cpLayer.Tag = ",";   // this info is needed later for global policy rules - in this case this sub-policy will be skipped!!!
 
                                 package.SubPolicies.Add(cpLayer);
+                                validatePackage(package);
 
                                 // 3. Create a new rule and add to this sub-policy
                                 var cpRule = Juniper_To_CPRule(globalPolicyRule, cpLayer.Name, sourceZone, destZone);
@@ -1368,7 +1371,7 @@ namespace JuniperMigration
                                                             juniperRule,
                                                             "Error creating a rule, missing information for application Juniper object",
                                                             "Application object details: " + application + ".");
-                
+
                 if (cpObject.Name == "icmp-proto")
                 {
                     if (hasGeneralIcmpService)
@@ -3039,7 +3042,7 @@ namespace JuniperMigration
                     {
                         continue;
                     }
-					
+
                     var parentLayerRuleZone = (CheckPoint_Zone)cpParentRule.Source[0];
                     if (parentLayerRuleZone == null)
                     {
@@ -3275,7 +3278,7 @@ namespace JuniperMigration
                     {
                         _juniper2CheckpointServiceDuplicates.Add(application.Name, serviceName);
                     }
-                    catch (Exception e) {}
+                    catch (Exception e) { }
 
                     application.ConversionIncidentType = ConversionIncidentType.Informative;
 
@@ -3793,7 +3796,7 @@ namespace JuniperMigration
             ConversionIncidentCategoriesCount = _conversionIncidents.GroupBy(error => error.Title).Count();
             ConversionIncidentsCommandsCount = _conversionIncidents.GroupBy(error => error.LineNumber).Count();
         }
-        
+
         public override int RulesInConvertedPackage()
         {
             return _cpPackages[0].TotalRules();
@@ -4052,7 +4055,7 @@ namespace JuniperMigration
                                             subActionStyle = "";
                                             break;
                                     }
-									
+
                                     var ruleConversionIncidentType = ConversionIncidentType.None;
                                     string curRuleNumber = ruleNumber + "." + subRuleNumber;
                                     string curRuleId = ruleIdPrefix + curRuleNumber;
@@ -4070,7 +4073,7 @@ namespace JuniperMigration
                                     sbCurRuleNumberColumnTag.Append("      <td class='indent_rule_number'/>");
                                     if (isSubSubPolicy)
                                     {
-                                        sbCurRuleNumberColumnTag.Append("      <td class='rule_number' colspan='2' onclick='toggleSubRules(this)'>" + 
+                                        sbCurRuleNumberColumnTag.Append("      <td class='rule_number' colspan='2' onclick='toggleSubRules(this)'>" +
                                             string.Format(HtmlSubPolicyArrowImageTagFormat, curRuleId + "_img", HtmlDownArrowImageSourceData) + curRuleNumber);
                                     }
                                     else
@@ -4099,8 +4102,8 @@ namespace JuniperMigration
                                     file.WriteLine("      <td class='comments'>" + subRule.Comments + "</td>");
                                     file.WriteLine("      <td class='comments'>" + subRule.ConversionComments + "</td>");
                                     file.WriteLine("  </tr>");
-									
-                                    if(isSubSubPolicy)
+
+                                    if (isSubSubPolicy)
                                     {
                                         foreach (CheckPoint_Layer subSubPolicy in package.SubPolicies)
                                         {
@@ -4167,7 +4170,7 @@ namespace JuniperMigration
                                             }
                                         }
                                     }
-									
+
                                     subRuleNumber++;
 
                                     if (package.ConversionIncidentType != ConversionIncidentType.None && ruleConversionIncidentType != ConversionIncidentType.None)
