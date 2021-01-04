@@ -84,6 +84,7 @@ namespace CheckPointObjects
                 CheckPoint_Rule rule = newRule.Clone();
                 rule.Layer = layer.Name;
                 rule.Comments = "";
+                rule.ConversionComments = newRule.ConversionComments;
                 layer.Rules.Add(rule);
             }
         }
@@ -124,6 +125,7 @@ namespace CheckPointObjects
             mergedRule.SourceNegated = rule1.SourceNegated;
             mergedRule.DestinationNegated = rule1.DestinationNegated;
             mergedRule.Comments = "";
+            mergedRule.ConversionComments = rule1.ConversionComments + " | " + rule2.ConversionComments;
             mergedRule.ConvertedCommandId = rule1.ConvertedCommandId;
             mergedRule.ConversionIncidentType = ConversionIncidentType.None;
 
