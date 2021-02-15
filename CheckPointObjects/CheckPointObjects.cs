@@ -311,13 +311,8 @@ namespace CheckPointObjects
     public class CheckPoint_NetworkGroup : CheckPointObject
     {
         public List<string> Members = new List<string>();
-<<<<<<< HEAD
 		
-	public bool IsPanoramaDeviceGroup = false;
-=======
-
-        public bool IsPanoramaDeviceGroup = false;
->>>>>>> ipv6_support_and_fixes
+	    public bool IsPanoramaDeviceGroup = false;
 
         /// <summary>
         /// This property is used to overcome the problematic order of objects creation for 
