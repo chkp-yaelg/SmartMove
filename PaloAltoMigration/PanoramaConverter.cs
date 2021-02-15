@@ -71,6 +71,8 @@ namespace PanoramaPaloAltoMigration
 
         private const string NETWORK_NETMASK = "32";
         private const string NETWORK_NETMASK_WS = "/32";
+        private const string NETWORK_NETMASK_V6 = "128";
+        private const string NETWORK_NETMASK_WS_V6 = "/128";
 
         private const string SERVICE_TYPE_TCP = "TCP";
         private const string SERVICE_TYPE_UDP = "UDP";
@@ -791,7 +793,7 @@ namespace PanoramaPaloAltoMigration
                 List<string> templatesList = new List<string>();
                 foreach (string template in paTemplateStackEntry.StackTemplatesMembers)
                 {
-                    templatesList.Add(template);                    
+                    templatesList.Add(template);
                 }
                 foreach (PA_DevicesTemplateStackEntry device in paTemplateStackEntry.DevicesEntries)
                 {
@@ -849,7 +851,7 @@ namespace PanoramaPaloAltoMigration
         }
 
         public override void Convert(bool convertNat)
-        {            
+        {
             string targetFileNameMain = _vendorFileName;
             string targetFolderMain = _targetFolder;
 
@@ -865,7 +867,7 @@ namespace PanoramaPaloAltoMigration
             Dictionary<string, string> _devicesUIDDict = GetDevicesUIDdict(_paParser._ArchiveName);
 
             if (paConfig != null)
-            {                
+            {
                 List<PA_TagEntry> s_TagEntries = new List<PA_TagEntry>();
                 Dictionary<string, CheckPointObject> s_cpAddressesDict = null;
                 Dictionary<string, CheckPoint_NetworkGroup> s_cpNetGroupsDict = null;
@@ -876,7 +878,7 @@ namespace PanoramaPaloAltoMigration
                 Dictionary<string, CheckPoint_ApplicationGroup> s_cpAppGroupsDict = null;
                 Dictionary<string, List<CheckPoint_Time>> s_cpSchedulesDict = null;
                 PA_PreRulebase s_preRulebase = null;
-                PA_PostRulebase s_postRulebase = null;                
+                PA_PostRulebase s_postRulebase = null;
 
                 if (paConfig.Shared != null)
                 {
@@ -912,7 +914,7 @@ namespace PanoramaPaloAltoMigration
                     });
 
                     s_preRulebase = paConfig.Shared.PreRulebase;
-                    s_postRulebase = paConfig.Shared.PostRulebase;                    
+                    s_postRulebase = paConfig.Shared.PostRulebase;
                 }
                 if (paConfig.Devices != null)
                 {
@@ -977,7 +979,7 @@ namespace PanoramaPaloAltoMigration
                                     foreach (CheckPoint_NetworkGroup FWGroup in FWGroup_List)
                                     {
                                         if (s_cpNetGroupsDict != null)
-                                        {                                            
+                                        {
                                             if (!s_cpNetGroupsDict.ContainsKey(FWGroup.Name))
                                                 s_cpNetGroupsDict.Add(FWGroup.Name, FWGroup);
                                         }
@@ -1054,11 +1056,11 @@ namespace PanoramaPaloAltoMigration
                 string deviceName = null;
                 if (_devicesUIDDict.ContainsKey(deviceEntry.Name))
                 {
-                    deviceName = _devicesUIDDict[deviceEntry.Name];                    
+                    deviceName = _devicesUIDDict[deviceEntry.Name];
                 }
 
                 FWGroup = new CheckPoint_NetworkGroup();
-                FWGroup.Name = "FW_" + deviceName;                
+                FWGroup.Name = "FW_" + deviceName;
                 FWGroup.IsPanoramaDeviceGroup = true;
                 foreach (PA_TagEntry tagEntry in tags)
                 {
@@ -1086,7 +1088,7 @@ namespace PanoramaPaloAltoMigration
                                         List<CheckPoint_NetworkGroup> devicesGroupList,
                                         Dictionary<string, string> _devicesUIDDict
                                         )
-        {           
+        {
             RaiseConversionProgress(35, "Convert configuration...");
             RaiseConversionProgress(40, "Convert objects...");
 
@@ -1109,7 +1111,7 @@ namespace PanoramaPaloAltoMigration
 
             Dictionary<string, CheckPointObject> cpAddressesDict = ConvertAddresses(paDeviceGroupEntry, s_cpAddressesDict);
 
-            Dictionary<string, CheckPoint_NetworkGroup> cpNetGroupsDict = ConvertAddressesGroupsWithInspection(paDeviceGroupEntry, cpAddressesDict, s_cpNetGroupsDict, s_TagEntries);                        
+            Dictionary<string, CheckPoint_NetworkGroup> cpNetGroupsDict = ConvertAddressesGroupsWithInspection(paDeviceGroupEntry, cpAddressesDict, s_cpNetGroupsDict, s_TagEntries);
 
             Dictionary<string, CheckPointObject> cpServicesDict = ConvertServices(paDeviceGroupEntry, s_cpServicesDict);
 
@@ -1175,7 +1177,7 @@ namespace PanoramaPaloAltoMigration
                         AddCheckPointObject(x);
                     }
                 });
-                
+
                 (new List<CheckPoint_ServiceGroup>(cpServicesGroupsDict.Values)).ForEach(x => AddCheckPointObject(x));
                 (new List<CheckPoint_ApplicationGroup>(cpAppGroupsDict.Values)).ForEach(x => AddCheckPointObject(x));
                 (new List<List<CheckPoint_Time>>(cpSchedulesDict.Values)).ForEach(x => x.ForEach(y => AddCheckPointObject(y)));
@@ -1321,7 +1323,7 @@ namespace PanoramaPaloAltoMigration
         #region Convert Addresses and Addresses Groups
 
         public Dictionary<string, CheckPointObject> ConvertAddresses(PA_Objects paObjects, Dictionary<string, CheckPointObject> s_cpAddressesDict)
-        {            
+        {
             Dictionary<string, CheckPointObject> cpAddressesDict = null;
             if (s_cpAddressesDict != null)
                 cpAddressesDict = new Dictionary<string, CheckPointObject>(s_cpAddressesDict);
@@ -1336,7 +1338,17 @@ namespace PanoramaPaloAltoMigration
                     {
                         int indexSlash = paAddressEntry.IpNetmask.IndexOf("/");
 
-                        if (indexSlash != -1 && paAddressEntry.IpNetmask.Substring(indexSlash + 1).Trim().Equals(NETWORK_NETMASK))
+                        if (indexSlash == -1)
+                        {
+                            CheckPoint_Host cpHost = new CheckPoint_Host();
+                            cpHost.Name = InspectObjectName(paAddressEntry.Name, CP_OBJECT_TYPE_NAME_ADDRESS_HOST);
+                            cpHost.Comments = paAddressEntry.Description;
+                            cpHost.Tags = paAddressEntry.TagMembers;
+                            cpHost.IpAddress = paAddressEntry.IpNetmask;
+                            cpAddressesDict[paAddressEntry.Name] = cpHost;
+                        }
+                        else if (NetworkUtils.IsValidIpv4(paAddressEntry.IpNetmask.Substring(0, indexSlash)) && paAddressEntry.IpNetmask.Substring(indexSlash + 1).Trim().Equals(NETWORK_NETMASK)
+                                    || NetworkUtils.IsValidIpv6(paAddressEntry.IpNetmask.Substring(0, indexSlash)) && paAddressEntry.IpNetmask.Substring(indexSlash + 1).Trim().Equals(NETWORK_NETMASK_V6))
                         {
                             CheckPoint_Host cpHost = new CheckPoint_Host();
                             cpHost.Name = InspectObjectName(paAddressEntry.Name, CP_OBJECT_TYPE_NAME_ADDRESS_HOST);
@@ -1345,24 +1357,22 @@ namespace PanoramaPaloAltoMigration
                             cpHost.IpAddress = paAddressEntry.IpNetmask.Substring(0, indexSlash);
                             cpAddressesDict[paAddressEntry.Name] = cpHost;
                         }
-                        else if (indexSlash != -1 && !paAddressEntry.IpNetmask.Substring(indexSlash + 1).Trim().Equals(NETWORK_NETMASK))
+                        else
                         {
                             CheckPoint_Network cpNetwork = new CheckPoint_Network();
                             cpNetwork.Name = InspectObjectName(paAddressEntry.Name, CP_OBJECT_TYPE_NAME_ADDRESS_NETWORK);
                             cpNetwork.Comments = paAddressEntry.Description;
                             cpNetwork.Tags = paAddressEntry.TagMembers;
                             cpNetwork.Subnet = paAddressEntry.IpNetmask.Substring(0, indexSlash);
-                            cpNetwork.Netmask = IPNetwork.Parse(paAddressEntry.IpNetmask).Netmask.ToString();
+                            if (NetworkUtils.IsValidIpv6(cpNetwork.Subnet))
+                            {
+                                cpNetwork.MaskLenght = paAddressEntry.IpNetmask.Substring(indexSlash + 1);
+                            }
+                            else
+                            {
+                                cpNetwork.Netmask = IPNetwork.Parse(paAddressEntry.IpNetmask).Netmask.ToString();
+                            }
                             cpAddressesDict[paAddressEntry.Name] = cpNetwork;
-                        }
-                        else if (indexSlash == -1)
-                        {
-                            CheckPoint_Host cpHost = new CheckPoint_Host();
-                            cpHost.Name = InspectObjectName(paAddressEntry.Name, CP_OBJECT_TYPE_NAME_ADDRESS_HOST);
-                            cpHost.Comments = paAddressEntry.Description;
-                            cpHost.Tags = paAddressEntry.TagMembers;
-                            cpHost.IpAddress = paAddressEntry.IpNetmask;
-                            cpAddressesDict[paAddressEntry.Name] = cpHost;
                         }
                     }
 
@@ -1386,16 +1396,16 @@ namespace PanoramaPaloAltoMigration
                         CheckPoint_Domain cpDomain = null;
                         if (index == -1)
                         {
-                            cpDomain = new CheckPoint_Domain();                            
-                            cpDomain.Name = "." + paAddressEntry.Fqdn;                            
+                            cpDomain = new CheckPoint_Domain();
+                            cpDomain.Name = "." + paAddressEntry.Fqdn;
                             cpDomain.Comments = paAddressEntry.Description;
-                            cpDomain.Tags = paAddressEntry.TagMembers;                            
+                            cpDomain.Tags = paAddressEntry.TagMembers;
                         }
                         else
                         {
                             cpDomain = (CheckPoint_Domain)(new List<CheckPointObject>(cpAddressesDict.Values))[index];
                         }
-                        cpAddressesDict[paAddressEntry.Name] = cpDomain;                        
+                        cpAddressesDict[paAddressEntry.Name] = cpDomain;
                     }
                 }
             }
@@ -1427,7 +1437,7 @@ namespace PanoramaPaloAltoMigration
                     cpNetGroup.Name = paAddressGroupEntry.Name;
                     cpNetGroup.Comments = paAddressGroupEntry.Description;
                     cpNetGroup.Tags = paAddressGroupEntry.TagMembers;
-                    cpNetGrpList.Add(cpNetGroup);                   
+                    cpNetGrpList.Add(cpNetGroup);
                 }
             }
 
@@ -1438,9 +1448,9 @@ namespace PanoramaPaloAltoMigration
                 foreach (PA_AddressGroupEntry paAddressGroupEntry in paObjects.AddressGroupEntries)
                 {
                     CheckPoint_NetworkGroup cpNetGroup = new CheckPoint_NetworkGroup();
-                    
+
                     cpNetGroup.Name = InspectObjectName(GetSafeName(paAddressGroupEntry.Name), CP_OBJECT_TYPE_NAME_ADDRESS_GROUP);
-                    
+
                     cpNetGroup.Comments = paAddressGroupEntry.Description;
                     cpNetGroup.Tags = paAddressGroupEntry.TagMembers;
 
@@ -1507,9 +1517,9 @@ namespace PanoramaPaloAltoMigration
                 if (cpNetGrpList != null)
                 {
                     foreach (CheckPoint_NetworkGroup cpAddressGroupEntry in cpNetGrpList)
-                    {                        
+                    {
                         if (cpAddressGroupEntry.Tags.Contains(paTagEntry.Name))
-                        {                     
+                        {
                             namesList.Add(cpAddressGroupEntry.Name);
                         }
                     }
@@ -1546,7 +1556,7 @@ namespace PanoramaPaloAltoMigration
         public Dictionary<string, CheckPoint_NetworkGroup> InspectAddressGroups(Dictionary<string, CheckPointObject> cpAddressesNamesDict,
                                                                                 Dictionary<string, CheckPoint_NetworkGroup> cpNetGroupsCheck,
                                                                                 Dictionary<string, CheckPoint_NetworkGroup> cpNetGroupsTemp)
-        {            
+        {
             Dictionary<string, CheckPoint_NetworkGroup> cpNetGroupsResult = null;
             if (cpNetGroupsTemp != null)
             {
@@ -1567,13 +1577,13 @@ namespace PanoramaPaloAltoMigration
                 cpNetGroupResult.Name = cpNetGroupCheck.Name;
                 cpNetGroupResult.Comments = cpNetGroupCheck.Comments;
                 cpNetGroupResult.Tags = cpNetGroupCheck.Tags;
-                cpNetGroupResult.IsPanoramaDeviceGroup = cpNetGroupCheck.IsPanoramaDeviceGroup;                  
+                cpNetGroupResult.IsPanoramaDeviceGroup = cpNetGroupCheck.IsPanoramaDeviceGroup;
 
                 foreach (string member in cpNetGroupCheck.Members)
-                {                   
+                {
 
                     if (cpAddressesNamesDict.ContainsKey(member)) //group member is in Addresses                    
-                    {                       
+                    {
                         cpNetGroupResult.Members.Add(cpAddressesNamesDict[member].Name);
                     }
                     else if (cpNetGroupsResult.ContainsKey(member)) //group member is converted and added to Addresses Groups                    
@@ -1590,12 +1600,12 @@ namespace PanoramaPaloAltoMigration
                         }
                         else
                         {
-                            _warningsList.Add(cpNetGroupCheck.Name + " address group contains non-existing member: " + member);                            
+                            _warningsList.Add(cpNetGroupCheck.Name + " address group contains non-existing member: " + member);
                         }
                     }
                     else
                     {
-                        _warningsList.Add(cpNetGroupCheck.Name + " address group contains non-existing member: " + member);                        
+                        _warningsList.Add(cpNetGroupCheck.Name + " address group contains non-existing member: " + member);
                     }
                 }
 
@@ -1913,21 +1923,21 @@ namespace PanoramaPaloAltoMigration
         }
 
         public Dictionary<string, CheckPointObject> ConvertServices(PA_Objects paObjects, Dictionary<string, CheckPointObject> s_cpServicesDict)
-        {            
+        {
             Dictionary<string, CheckPointObject> cpServicesDict = null;
             if (s_cpServicesDict != null)
                 cpServicesDict = new Dictionary<string, CheckPointObject>(s_cpServicesDict);
             else
                 cpServicesDict = new Dictionary<string, CheckPointObject>();
-			
+
             Dictionary<string, CheckPointObject> cpInspectedServicesDict = new Dictionary<string, CheckPointObject>();
             foreach (string service in cpServicesDict.Keys)
             {
-                cpInspectedServicesDict[service] = InspectService(cpServicesDict[service]);                
+                cpInspectedServicesDict[service] = InspectService(cpServicesDict[service]);
             }
             cpServicesDict = cpInspectedServicesDict;
 
-   
+
             GetPredefinedServices().ForEach(x => cpServicesDict[x.Name] = InspectService(x));
 
             if (paObjects.ServiceEntries != null)
@@ -1939,7 +1949,7 @@ namespace PanoramaPaloAltoMigration
                         if (paServiceEntry.Protocol.ServiceTcp != null && paServiceEntry.Protocol.ServiceTcp.Port != null)
                         {
                             string srvName = paServiceEntry.Name;
-                            
+
                             if (!char.IsLetter(paServiceEntry.Name[0]))
                             {
                                 srvName = SERVICE_TYPE_TCP + "_" + paServiceEntry.Name;
@@ -1986,7 +1996,7 @@ namespace PanoramaPaloAltoMigration
                             else
                             {
                                 CheckPoint_TcpService cpTcpService = new CheckPoint_TcpService();
-                                                                
+
                                 cpTcpService.Name = InspectObjectName(srvName, CP_OBJECT_TYPE_NAME_SERVICE_TCP);
 
                                 cpTcpService.Comments = paServiceEntry.Description;
@@ -2064,7 +2074,7 @@ namespace PanoramaPaloAltoMigration
         }
 
         public List<CheckPointObject> GetPredefinedServices()
-        {           
+        {
             List<CheckPointObject> predefinedServices = new List<CheckPointObject>();
 
             CheckPoint_ServiceGroup cpServiceGroupHttp = new CheckPoint_ServiceGroup();
@@ -2079,7 +2089,7 @@ namespace PanoramaPaloAltoMigration
             cpServiceHttps.Port = "443";
 
             predefinedServices.Add(cpServiceHttps);
-            
+
             return predefinedServices;
         }
 
@@ -2093,52 +2103,52 @@ namespace PanoramaPaloAltoMigration
         }
 
         public CheckPointObject InspectService(CheckPointObject cpService)
-        {            
-                CheckPointObject cpServiceRet = null;
+        {
+            CheckPointObject cpServiceRet = null;
 
-                if (cpService.GetType() == typeof(CheckPoint_TcpService))
-                {
-                    CheckPoint_TcpService cpTcpService = (CheckPoint_TcpService)cpService;
-                    bool isFound;
-                    string cpServiceName = _cpObjects.GetKnownServiceName(SERVICE_TYPE_TCP + "_" + cpTcpService.Port, out isFound);
+            if (cpService.GetType() == typeof(CheckPoint_TcpService))
+            {
+                CheckPoint_TcpService cpTcpService = (CheckPoint_TcpService)cpService;
+                bool isFound;
+                string cpServiceName = _cpObjects.GetKnownServiceName(SERVICE_TYPE_TCP + "_" + cpTcpService.Port, out isFound);
 
                 if (isFound)
                 {
                     cpServiceRet = _cpObjects.GetObject(cpServiceName);
-                     cpPredefServicesTypes[cpServiceRet.Name] = SERVICE_TYPE_TCP;
-                }
-                    else
-                    {
-                        cpServiceRet = cpTcpService;
-                    }
-                }
-                else if (cpService.GetType() == typeof(CheckPoint_UdpService))
-                {
-                    CheckPoint_UdpService cpUdpService = (CheckPoint_UdpService)cpService;
-                    bool isFound;
-                    string cpServiceName = _cpObjects.GetKnownServiceName(SERVICE_TYPE_UDP + "_" + cpUdpService.Port, out isFound);
-
-                    if (isFound)
-                    {
-                        cpServiceRet = _cpObjects.GetObject(cpServiceName);
-                        cpPredefServicesTypes[cpServiceRet.Name] = SERVICE_TYPE_UDP;
-                    }
-                    else
-                    {
-                        cpServiceRet = cpUdpService;
-                    }
-                }
-                else if (cpService.GetType() == typeof(CheckPoint_ServiceGroup))
-                {
-                    cpServiceRet = cpService;
+                    cpPredefServicesTypes[cpServiceRet.Name] = SERVICE_TYPE_TCP;
                 }
                 else
                 {
-                    _errorsList.Add(cpService.Name + " service is not TCP or UDP or service group.");
+                    cpServiceRet = cpTcpService;
                 }
-
-                return cpServiceRet;
             }
+            else if (cpService.GetType() == typeof(CheckPoint_UdpService))
+            {
+                CheckPoint_UdpService cpUdpService = (CheckPoint_UdpService)cpService;
+                bool isFound;
+                string cpServiceName = _cpObjects.GetKnownServiceName(SERVICE_TYPE_UDP + "_" + cpUdpService.Port, out isFound);
+
+                if (isFound)
+                {
+                    cpServiceRet = _cpObjects.GetObject(cpServiceName);
+                    cpPredefServicesTypes[cpServiceRet.Name] = SERVICE_TYPE_UDP;
+                }
+                else
+                {
+                    cpServiceRet = cpUdpService;
+                }
+            }
+            else if (cpService.GetType() == typeof(CheckPoint_ServiceGroup))
+            {
+                cpServiceRet = cpService;
+            }
+            else
+            {
+                _errorsList.Add(cpService.Name + " service is not TCP or UDP or service group.");
+            }
+
+            return cpServiceRet;
+        }
 
         public Dictionary<string, CheckPoint_ServiceGroup> ConvertServicesGroups(PA_Objects paObjects, Dictionary<string, CheckPoint_ServiceGroup> s_cpServicesGroupsDict)
         {
@@ -2406,7 +2416,7 @@ namespace PanoramaPaloAltoMigration
             if (paDeviceGroupEntry.PreRulebase != null && paDeviceGroupEntry.PreRulebase.Security != null && paDeviceGroupEntry.PreRulebase.Security.RulesList != null)
             {
                 foreach (PA_SecurityRuleEntry paSecurityRuleEntry in paDeviceGroupEntry.PreRulebase.Security.RulesList)
-                {                    
+                {
                     isPolicyPlain =
                         !isPolicyPlain && (paSecurityRuleEntry.FromList.Contains(PA_ANY_VALUE) || paSecurityRuleEntry.ToList.Contains(PA_ANY_VALUE)) ? true : isPolicyPlain;
                     paRules.Add(paSecurityRuleEntry);
@@ -2414,9 +2424,9 @@ namespace PanoramaPaloAltoMigration
             }
 
             if (paDeviceGroupEntry.PostRulebase != null && paDeviceGroupEntry.PostRulebase.Security != null && paDeviceGroupEntry.PostRulebase.Security.RulesList != null)
-            {                
+            {
                 foreach (PA_SecurityRuleEntry paSecurityRuleEntry in paDeviceGroupEntry.PostRulebase.Security.RulesList)
-                {                    
+                {
                     isPolicyPlain =
                         !isPolicyPlain && (paSecurityRuleEntry.FromList.Contains(PA_ANY_VALUE) || paSecurityRuleEntry.ToList.Contains(PA_ANY_VALUE)) ? true : isPolicyPlain;
                     paRules.Add(paSecurityRuleEntry);
@@ -2425,9 +2435,9 @@ namespace PanoramaPaloAltoMigration
 
             //add post-rules from shared section to the device group rules
             if (s_postRulebase != null && s_postRulebase.Security != null && s_postRulebase.Security.RulesList != null)
-            {                
+            {
                 foreach (PA_SecurityRuleEntry paSecurityRuleEntry in s_postRulebase.Security.RulesList)
-                {                    
+                {
                     isPolicyPlain =
                         !isPolicyPlain && (paSecurityRuleEntry.FromList.Contains(PA_ANY_VALUE) || paSecurityRuleEntry.ToList.Contains(PA_ANY_VALUE)) ? true : isPolicyPlain;
                     paRules.Add(paSecurityRuleEntry);
@@ -2604,11 +2614,11 @@ namespace PanoramaPaloAltoMigration
                     if (!(paSecurityRuleEntry.ServiceList.Contains(PA_APPLICATION_DEFAULT) || paSecurityRuleEntry.ServiceList.Contains(PA_ANY_VALUE)))
                     {
                         foreach (string paServiceName in paSecurityRuleEntry.ServiceList)
-                        {                          
+                        {
                             CheckPointObject cpServiceObj = null;
                             if (cpServicesDict.ContainsKey(paServiceName))
                             {
-                                
+
                                 cpServiceObj = cpServicesDict[paServiceName];
                             }
                             else if (cpServicesGroupsDict.ContainsKey(paServiceName))
@@ -2794,17 +2804,17 @@ namespace PanoramaPaloAltoMigration
                                                                              cpAppGroupsDict,
                                                                              //devicesGroupList,
                                                                              cpTargetDeviceUIDList
-                                                                             ); 
+                                                                             );
                         if (cpRule.IsCleanupRule())
-                        {                            
+                        {
                             continue;
                         }
 
                         if (cpRule.IsAllowAnyRule())
                         {
                             cpRule.Enabled = false;
-                        }																			 
-                        
+                        }
+
                         cpRule.Layer = cpPackage.ParentLayer.Name;
 
                         cpPackage.ParentLayer.Rules.Add(cpRule);
@@ -2814,7 +2824,7 @@ namespace PanoramaPaloAltoMigration
                         {
                             cpPackage.ParentLayer.ApplicationsAndUrlFiltering = true;
                         }
-                        
+
                         string ruleCmd = cpRule.ToCLIScript();
                     }
                     else
@@ -2873,6 +2883,7 @@ namespace PanoramaPaloAltoMigration
                                     cpLayer.ApplicationsAndUrlFiltering = false;
 
                                     cpPackage.SubPolicies.Add(cpLayer);
+                                    validatePackage(cpPackage);
 
                                     CheckPoint_Rule cpGroupRule = new CheckPoint_Rule();
                                     cpGroupRule.Name = cpGroupRuleName;
@@ -2953,7 +2964,7 @@ namespace PanoramaPaloAltoMigration
             {
                 devices.Add(group.Name);
             }
-           
+
             bool cpRuleNegateTarget = false;
             if (paSecurityRuleEntry.Target != null)
             {
@@ -2967,10 +2978,10 @@ namespace PanoramaPaloAltoMigration
                     {
                         if (_devicesUIDDict.ContainsKey(entry.Name))
                         {
-                            deviceName = _devicesUIDDict[entry.Name];                            
+                            deviceName = _devicesUIDDict[entry.Name];
                         }
 
-                        cpTargetDeviceUIDList.Add("FW_" + deviceName);                        
+                        cpTargetDeviceUIDList.Add("FW_" + deviceName);
                     }
                     else
                     { //negate option set to "yes"
@@ -2980,15 +2991,15 @@ namespace PanoramaPaloAltoMigration
                             {
                                 if (_devicesUIDDict.ContainsKey(device))
                                 {
-                                    deviceName = _devicesUIDDict[device];                                    
+                                    deviceName = _devicesUIDDict[device];
                                 }
-                                cpTargetDeviceUIDList.Add(deviceName);                                
+                                cpTargetDeviceUIDList.Add(deviceName);
                             }
                         }
 
                     }
                 }
-            }            
+            }
             return cpTargetDeviceUIDList;
         }
 
@@ -3003,7 +3014,7 @@ namespace PanoramaPaloAltoMigration
             {
                 devices.Add(group.Name);
             }
-            
+
             bool cpRuleNegateTarget = false;
             if (paNatRuleEntry.Target != null)
             {
@@ -3017,9 +3028,9 @@ namespace PanoramaPaloAltoMigration
                     {
                         if (_devicesUIDDict.ContainsKey(entry.Name))
                         {
-                            deviceName = _devicesUIDDict[entry.Name];                            
+                            deviceName = _devicesUIDDict[entry.Name];
                         }
-                        cpTargetDeviceUIDList.Add("FW_" + deviceName);                        
+                        cpTargetDeviceUIDList.Add("FW_" + deviceName);
                     }
                     else
                     { //negate option set to "yes"
@@ -3029,7 +3040,7 @@ namespace PanoramaPaloAltoMigration
                             {
                                 if (_devicesUIDDict.ContainsKey(device))
                                 {
-                                    deviceName = _devicesUIDDict[device];                                    
+                                    deviceName = _devicesUIDDict[device];
                                 }
 
                                 cpTargetDeviceUIDList.Add(deviceName);
@@ -3038,7 +3049,7 @@ namespace PanoramaPaloAltoMigration
 
                     }
                 }
-            }            
+            }
             return cpTargetDeviceUIDList;
         }
 
@@ -3058,7 +3069,7 @@ namespace PanoramaPaloAltoMigration
                                                             Dictionary<string, CheckPointObject> cpServicesDict,
                                                             Dictionary<string, CheckPoint_ServiceGroup> cpSrvGroupsDict,
                                                             List<CheckPoint_AccessRole> cpAccessRolesList,
-                                                            Dictionary<string, CheckPoint_ApplicationGroup> cpAppGroupsDict,                                                            
+                                                            Dictionary<string, CheckPoint_ApplicationGroup> cpAppGroupsDict,
                                                             List<string> cpTargetDeviceUIDList
                                                             )
         {
@@ -3068,7 +3079,7 @@ namespace PanoramaPaloAltoMigration
             cpRule.Tags = paSecurityRuleEntry.TagMembers;
             cpRule.Source.AddRange(cpRuleSourceList);
             cpRule.Destination.AddRange(cpRuleDestinationList);
-            cpRule.Service.AddRange(cpRuleServiceList);         
+            cpRule.Service.AddRange(cpRuleServiceList);
             cpRule.Application.AddRange(cpRuleApplilcationList);
             cpRule.Action = cpRuleActionType;
             cpRule.Time.AddRange(cpRuleTimeList);
@@ -3077,11 +3088,11 @@ namespace PanoramaPaloAltoMigration
             if (cpTargetDeviceUIDList != null && cpTargetDeviceUIDList.Count() > 0)
             {
                 cpRule.Target.AddRange(cpTargetDeviceUIDList);
-            }           
+            }
             cpRule.SourceNegated = cpRuleNegateSource;
             cpRule.DestinationNegated = cpRuleNegateDestination;
             cpRule.ConversionComments = "Matched rule: " + paSecurityRuleEntry.Name;
-           
+
 
             cpRule.Source.ForEach(x =>
             {
@@ -3204,9 +3215,9 @@ namespace PanoramaPaloAltoMigration
                         {
                             if (paNatRuleEntry.SourceTranslation.DynamicIpAndPort.TranslatedAddresses != null &&
                                 paNatRuleEntry.SourceTranslation.DynamicIpAndPort.TranslatedAddresses.Count > 0)
-                            {             
+                            {
                                 foreach (string translatedAddress in paNatRuleEntry.SourceTranslation.DynamicIpAndPort.TranslatedAddresses)
-                                {                                   
+                                {
                                     if (cpAddressesDict.ContainsKey(translatedAddress))
                                     {
                                         cpSourceTranslationList.Add(cpAddressesDict[translatedAddress]);
@@ -3229,7 +3240,7 @@ namespace PanoramaPaloAltoMigration
                                             CheckPoint_Host cpHostNew = new CheckPoint_Host();
                                             cpHostNew.Name = "Host_" + ipAddress;
                                             cpHostNew.IpAddress = ipAddress;
-                                            cpAddressesDict[translatedAddress] = cpHostNew;                                            
+                                            cpAddressesDict[translatedAddress] = cpHostNew;
                                             cpSourceTranslationList.Add(cpHostNew);
                                             _warningsList.Add(cpHostNew.Name + " host object is created for NAT rule.");
                                         }
@@ -3243,13 +3254,13 @@ namespace PanoramaPaloAltoMigration
                                                 cpNetworkNew.Name = "Net_" + ipAddress;
                                                 cpNetworkNew.Subnet = ipAddress;
                                                 cpNetworkNew.Netmask = ipNetwork.Netmask.ToString();
-                                                cpAddressesDict[translatedAddress] = cpNetworkNew;                                                
+                                                cpAddressesDict[translatedAddress] = cpNetworkNew;
                                                 cpSourceTranslationList.Add(cpNetworkNew);
                                                 _warningsList.Add(cpNetworkNew.Name + " network object is created for NAT rule.");
                                             }
                                         }
                                     }
-                                    
+
                                 }
                             }
                             else if (paNatRuleEntry.SourceTranslation.DynamicIpAndPort.InterfaceAddress != null)
@@ -3464,6 +3475,9 @@ namespace PanoramaPaloAltoMigration
                                 }
                                 #endregion
 
+                                PostProcessNatRule46(cpNatRule);
+                                PostProcessNatRule64(cpNatRule);
+
                                 #region adding destination translation
 
                                 if (paNatRuleEntry.DestinationTranslation != null)
@@ -3525,7 +3539,7 @@ namespace PanoramaPaloAltoMigration
                                                 if (cpServicesDict.ContainsKey(paNatRuleEntry.Service))
                                                 {
                                                     CheckPointObject cpService = cpServicesDict[paNatRuleEntry.Service];
-                                                    if (cpService.GetType() == typeof(CheckPoint_TcpService))
+                                                    if (cpService.GetType() == typeof(CheckPoint_TcpService) || cpService.GetType() == typeof(CheckPoint_ServiceGroup))
                                                     {
                                                         cpNatRule.TranslatedService = CreateNatServiceTcpFromStatDest(paNatRuleEntry);
                                                     }
@@ -3763,6 +3777,21 @@ namespace PanoramaPaloAltoMigration
                                             _cpNatRules.Add(cpNatRuleBi);
                                         }
 
+                                        if (isNatRule46AndHasNonOriginTranslatedService(cpNatRule))
+                                        {
+                                            _warningsList.Add(String.Format("NAT Rule {0} has nat46 method and non-origin translated-service.", cpNatRule.Name));
+                                            continue; // skip this Nat rule
+                                        }
+                                        if (isNatRule46AndTranslatedSourceIsHost(cpNatRule))
+                                        {
+                                            _warningsList.Add(string.Format("NAT Rule {0} has nat46 method and host as translated-source.", cpNatRule.Name));
+                                            continue;
+                                        }
+                                        if (isNatRule46AndOriginalDestinationIsNotHost(cpNatRule))
+                                        {
+                                            _warningsList.Add(string.Format("NAT Rule {0} has nat46 method and original-destination is not a host.", cpNatRule.Name));
+                                            continue;
+                                        }
                                         _cpNatRules.Add(cpNatRule);
                                         AddCheckPointObject(cpNatRule.Source);
                                         AddCheckPointObject(cpNatRule.Destination);
@@ -3983,31 +4012,31 @@ namespace PanoramaPaloAltoMigration
             return Vendor.PaloAlto.ToString();
         }
         #endregion
-		
+
         public Dictionary<string, string> GetDevicesUIDdict(string filename)
         {
             Dictionary<string, string> devicesUIDDict = new Dictionary<string, string>();
-            
+
             string outConfigsFolder = filename;
             string[] configsFolder = Directory.GetDirectories(outConfigsFolder);//get uncompressed folder name 
             string[] configFilesArray = Directory.GetFiles(configsFolder[0]);
-           
+
             string configName;
             string deviceName;
             string deviceUID;
-           
+
             foreach (string confFile in configFilesArray)
             {
-                
+
                 if (confFile.IndexOf("\\") != -1 && confFile.IndexOf(".xml") != -1)
                 {
                     configName = confFile.Substring(confFile.LastIndexOf("\\") + 1);
                     configName = configName.Substring(0, configName.IndexOf(".xml"));
-                    
+
                     if (configName.IndexOf("_") != -1)
                     {
-                        deviceName = configName.Substring(0, configName.LastIndexOf("_"));                        
-                        deviceUID = configName.Substring(configName.LastIndexOf("_") + 1);                        
+                        deviceName = configName.Substring(0, configName.LastIndexOf("_"));
+                        deviceUID = configName.Substring(configName.LastIndexOf("_") + 1);
                         devicesUIDDict.Add(deviceUID, deviceName);
                     }
                 }
