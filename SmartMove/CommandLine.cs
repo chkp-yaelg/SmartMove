@@ -18,7 +18,7 @@ namespace SmartMove
     /// Represents command line logic
     /// </summary>
     class CommandLine
-    {    
+    {
         private string[] arguments { get; set; }
 
         public CommandLine(string[] args)
@@ -34,7 +34,7 @@ namespace SmartMove
             get { return configFileName; }
             set { configFileName = value; }
         }
-        
+
         //–v CiscoASA
         private string vendor { get; set; }
         public string Vendor
@@ -50,7 +50,7 @@ namespace SmartMove
             get { return targetFolder; }
             set { targetFolder = value; }
         }
-        
+
         //-d domain
         private string domain { get; set; }
         public string Domain
@@ -189,7 +189,7 @@ namespace SmartMove
         public string[] regenerateArgs(string commandLineString)
         {
             String[] args = null;
-            
+
             var parts = Regex.Matches(commandLineString, @"[\""].+?[\""]|[^ ]+")
                             .Cast<Match>()
                             .Select(m => m.Value)
@@ -197,7 +197,7 @@ namespace SmartMove
             parts.RemoveAt(0);
 
             string buf;
-            List<String> finalArgs = new List<String> ();
+            List<String> finalArgs = new List<String>();
             foreach (var item in parts)
             {
                 if (item.StartsWith("\"") && item.EndsWith("\""))
@@ -209,10 +209,10 @@ namespace SmartMove
                 {
                     finalArgs.Add(item);
                 }
-                    
+
             }
-                args = finalArgs.ToArray();
-                      
+            args = finalArgs.ToArray();
+
             return args;
         }
 
@@ -220,31 +220,32 @@ namespace SmartMove
          * Parses input options and writes its values to ComamndLine class fields
          */
         public CommandLine Parse(string[] args)
-        {                    
-             for (int i = 0; i < args.Length; i++)
-             {                
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
                 switch (args[i])
                 {
                     case "-f":
                         {
                             if (args[i] != args.Last() && !args[i + 1].StartsWith("-"))
-                            {                         
+                            {
                                 if (args[i + 1].IndexOf("\\") != -1)
-                                {                                    
+                                {
                                     this.ConfigFileName = args[i + 1];
                                 }
                                 else
                                 {
                                     this.configFileName = Directory.GetCurrentDirectory() + "\\" + args[i + 1];
-                             
+
                                 }
                                 //set default velue of target folder to cofig file directory
                                 this.TargetFolder = this.ConfigFileName.Substring(0, this.ConfigFileName.LastIndexOf("\\"));
-                                
-                            } else
+
+                            }
+                            else
                             {
                                 Console.WriteLine("Value for mandatory option -f is not specified! ", MessageTypes.Error);
-                            } 
+                            }
 
                             break;
                         }
@@ -252,14 +253,14 @@ namespace SmartMove
                         {
                             if (args[i] != args.Last() && !args[i + 1].StartsWith("-"))
                                 this.vendor = args[i + 1];
-                             else
-                                 Console.WriteLine("Value for mandatory option -v is not specified! ", MessageTypes.Error);
+                            else
+                                Console.WriteLine("Value for mandatory option -v is not specified! ", MessageTypes.Error);
                             break;
                         }
                     case "-t":
                         {
                             if (args[i] != args.Last() && !args[i + 1].StartsWith("-"))
-                                this.targetFolder = args[i + 1]; 
+                                this.targetFolder = args[i + 1];
                             else
                                 Console.WriteLine("Value for target folder option -t is not specified. Default value will be set!", MessageTypes.Error);
                             break;
@@ -283,22 +284,23 @@ namespace SmartMove
                             {
                                 this.ldapAccountUnit = args[i + 1];
                                 this.ConvertUserConfiguration = true;
-                            } else
+                            }
+                            else
                             {
                                 this.ConvertUserConfiguration = true;
                                 //Console.WriteLine("Value for option -u is not specified! ", MessageTypes.Error);
                             }
-                                
+
                             break;
                         }
                     case "-i":
                         {
                             this.dontImportUnusedObjects = true;
                             break;
-                        }                    
-                }                                
-             }
-             return this;
+                        }
+                }
+            }
+            return this;
         }
 
         /*
@@ -307,13 +309,13 @@ namespace SmartMove
          */
         public void DoMigration(CommandLine commandLine)
         {
-            
+
             string fileName = Path.GetFileNameWithoutExtension(commandLine.ConfigFileName);
             //Console.WriteLine("File name: " + fileName);
 
-            if (string.IsNullOrEmpty(commandLine.ConfigFileName) || string.IsNullOrEmpty(fileName))            
+            if (string.IsNullOrEmpty(commandLine.ConfigFileName) || string.IsNullOrEmpty(fileName))
             {
-                Console.WriteLine("Configuration file is not selected.", MessageTypes.Error);                
+                Console.WriteLine("Configuration file is not selected.", MessageTypes.Error);
                 return;
             }
 
@@ -328,7 +330,7 @@ namespace SmartMove
                 Console.WriteLine("Configuration file name is restricted to 20 characters at most.", MessageTypes.Error);
                 return;
             }
-                   
+
             if (!Directory.Exists(commandLine.TargetFolder))
             {
                 Console.WriteLine("Cannot find target folder for conversion output.", MessageTypes.Error);
@@ -337,9 +339,9 @@ namespace SmartMove
 
             VendorParser vendorParser;
 
-            switch (commandLine.Vendor)            
+            switch (commandLine.Vendor)
             {
-                case "CiscoASA":                    
+                case "CiscoASA":
                     vendorParser = new CiscoParser();
                     break;
                 case "JuniperSRX":
@@ -351,8 +353,8 @@ namespace SmartMove
                 case "FortiNet":
                     vendorParser = new FortiGateParser();
                     break;
-                case "PaloAlto":                    
-                    vendorParser = new PaloAltoParser();                    
+                case "PaloAlto":
+                    vendorParser = new PaloAltoParser();
                     break;
                 case "Panorama":
                     vendorParser = new PanoramaParser();
@@ -362,10 +364,10 @@ namespace SmartMove
             }
 
             try
-            {                
+            {
                 string ciscoFile = commandLine.ConfigFileName;
                 Console.WriteLine("Parsing configuration file...");
-                
+
                 if (commandLine.Vendor.Equals("Panorama"))
                 {
                     PanoramaParser panParser = (PanoramaParser)vendorParser;
@@ -377,7 +379,7 @@ namespace SmartMove
                 }
             }
             catch (Exception ex)
-            {                
+            {
                 Console.WriteLine(string.Format("Could not parse configuration file.\n\nMessage: {0}\nModule:\t{1}\nClass:\t{2}\nMethod:\t{3}", ex.Message, ex.Source, ex.TargetSite.ReflectedType.Name, ex.TargetSite.Name), MessageTypes.Error);
                 return;
             }
@@ -453,23 +455,21 @@ namespace SmartMove
             }
             #endregion                       
 
-            string vendorFileName = Path.GetFileNameWithoutExtension(commandLine.ConfigFileName);            
+            string vendorFileName = Path.GetFileNameWithoutExtension(commandLine.ConfigFileName);
 
             string toolVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            
-            string targetFolder = commandLine.TargetFolder + "\\";                        
+
+            string targetFolder = commandLine.TargetFolder + "\\";
 
             bool convertNat = commandLine.ConvertNat;
-            
+
             string ldapAccountUnit = commandLine.LdapAccountUnit;
-            
-            vendorParser.Export(targetFolder + vendorFileName + ".json");
 
             VendorConverter vendorConverter;
 
             switch (commandLine.Vendor)
             {
-                case "CiscoASA":                    
+                case "CiscoASA":
                     vendorConverter = new CiscoConverter();
                     break;
                 case "JuniperSRX":
@@ -490,7 +490,7 @@ namespace SmartMove
                     paConverter.OptimizeConf = commandLine.DontImportUnusedObjects;
                     paConverter.ConvertUserConf = commandLine.ConvertUserConfiguration;
                     paConverter.LDAPAccoutUnit = ldapAccountUnit;
-                    vendorConverter = paConverter;                    
+                    vendorConverter = paConverter;
                     break;
                 case "Panorama":
                     PanoramaConverter panoramaConverter = new PanoramaConverter();
@@ -504,7 +504,7 @@ namespace SmartMove
             }
 
             vendorConverter.Initialize(vendorParser, commandLine.ConfigFileName, toolVersion, targetFolder, commandLine.Domain);
-            
+
             try
             {
                 Console.WriteLine("Conversion is in progress...");
@@ -513,17 +513,27 @@ namespace SmartMove
             }
             catch (Exception ex)
             {
-               
-                Console.WriteLine(string.Format("Could not convert configuration file.\n\nMessage: {0}\nModule:\t{1}\nClass:\t{2}\nMethod:\t{3}", ex.Message, ex.Source, ex.TargetSite.ReflectedType.Name, ex.TargetSite.Name), MessageTypes.Error);
+                if (ex is InvalidDataException && ex.Message != null && ex.Message.Contains("Policy exceeds the maximum number"))
+                {
+                    Console.WriteLine(String.Format("{1}{0}{2}{0}{3}", Environment.NewLine, "SmartMove is unable to convert the provided policy.",
+                                                        "Reason: Policy exceeds the maximum number of supported policy layers.",
+                                                        "To assure the smooth conversion of your data, it is recommended to contact Check Point Professional Services by sending an e-mail to ps@checkpoint.com"));
+                }
+                else
+                {
+                    Console.WriteLine(string.Format("Could not convert configuration file.\n\nMessage: {0}\nModule:\t{1}\nClass:\t{2}\nMethod:\t{3}", ex.Message, ex.Source, ex.TargetSite.ReflectedType.Name, ex.TargetSite.Name), MessageTypes.Error);
+                }
                 return;
-            }                     
-            
-            vendorConverter.ExportConfigurationAsHtml();            
-            vendorConverter.ExportPolicyPackagesAsHtml();            
+            }
+
+            vendorParser.Export(targetFolder + vendorFileName + ".json");
+
+            vendorConverter.ExportConfigurationAsHtml();
+            vendorConverter.ExportPolicyPackagesAsHtml();
             if (commandLine.ConvertNat)
             {
-                vendorConverter.ExportNatLayerAsHtml();               
-            }          
+                vendorConverter.ExportNatLayerAsHtml();
+            }
         }
     }
 }

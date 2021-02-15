@@ -32,8 +32,8 @@ namespace CheckPointObjects
 
         private class ObjectInfo
         {
-            public CheckPointObject Object  { get; private set; }
-            public bool IsPredefined  { get; private set; }
+            public CheckPointObject Object { get; private set; }
+            public bool IsPredefined { get; private set; }
 
             public ObjectInfo(CheckPointObject cpObject, bool isPredefined)
             {
@@ -44,6 +44,7 @@ namespace CheckPointObjects
 
         private readonly Dictionary<string, ObjectInfo> _repository = new Dictionary<string, ObjectInfo>();
         private readonly Dictionary<string, string> _knownServices = new Dictionary<string, string>();
+        private readonly ISet<string> _knownProtocols = new HashSet<string>();
 
         #endregion
 
@@ -142,6 +143,12 @@ namespace CheckPointObjects
                 var cpPredifinedObject = new CheckPoint_PredifinedObject { Name = knownServiceGroup.Trim('"') };
                 _repository.Add(cpPredifinedObject.Name, new ObjectInfo(cpPredifinedObject, true));
             }
+
+            string[] knownProtocols = File.ReadAllLines("CP_KnownProtocols.csv");
+            foreach (string knownProtocol in knownProtocols)
+            {
+                _knownProtocols.Add(knownProtocol);
+            }
         }
 
         public void AddObject(CheckPointObject cpObject)
@@ -202,6 +209,18 @@ namespace CheckPointObjects
         public bool IsKnownService(string serviceName)
         {
             return (serviceName == CheckPointObject.Any || serviceName == CheckPointObject.icmpProtocol || _knownServices.ContainsValue(serviceName));
+        }
+
+        public bool IsKnownProtocol(string protocolName)
+        {
+            foreach (string protocol in _knownProtocols)
+            {
+                if (protocol.ToLower().Equals(protocolName?.ToLower()))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #endregion

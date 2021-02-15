@@ -50,7 +50,7 @@ namespace SmartMove
             DependencyProperty.Register("Message", typeof(string), typeof(MessageWindow), new PropertyMetadata(null));
 
         #endregion
-		
+
         #region MessageLink
         public string MessageLinkText
         {
@@ -71,7 +71,7 @@ namespace SmartMove
             DependencyProperty.Register("MessageLinkValue", typeof(string), typeof(MessageWindow), new PropertyMetadata(null));
 
         #endregion
-		
+
         #region MessageType
 
         public MessageTypes MessageType
@@ -101,7 +101,7 @@ namespace SmartMove
                 DragMove();
             }
         }
-		
+
         private void Link_OnClick(object sender, RoutedEventArgs e)
         {
             var link = (Hyperlink)sender;
