@@ -1199,6 +1199,8 @@ namespace PanoramaPaloAltoMigration
             _warningsConvertedPackage = _warningsList.Count;
             _errorsConvertedPackage = _errorsList.Count;
 
+            CreateSmartConnector();
+
             // to clean; must be the last!!!
             _cpObjects.ClearRepository();
             CleanSavedData();
@@ -2933,9 +2935,20 @@ namespace PanoramaPaloAltoMigration
                 cpLayer.Rules.Add(cpRuleCU);
             };
 
-            var cpRuleFake = new CheckPoint_Rule();
-            cpRuleFake.Name = "Cleanup rule"; //the last rule which is created by default by CheckPoint script importer. It is for report only.
-            cpPackage.ParentLayer.Rules.Add(cpRuleFake);
+            // Do NOT create a cleanup rule if it already exists
+            bool createCleanupRule = true;
+            if (cpPackage.ParentLayer.Rules.Count > 0)
+            {
+                var lastRule = cpPackage.ParentLayer.Rules[cpPackage.ParentLayer.Rules.Count - 1];
+                createCleanupRule = !lastRule.IsCleanupRule();
+            }
+
+            if (createCleanupRule)
+            {
+                var cpRuleFake = new CheckPoint_Rule();
+                cpRuleFake.Name = "Cleanup rule"; //the last rule which is created by default by CheckPoint script importer. It is for report only.
+                cpPackage.ParentLayer.Rules.Add(cpRuleFake);
+            }
 
             AddCheckPointObject(cpPackage);
         }
