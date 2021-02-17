@@ -1,0 +1,16 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/SmartMove/v16
+/bin/Debug
+/CheckPointObjects/obj/Debug
+/CiscoMigration/obj/Debug
+/CommonUtils/obj/Debug
+/FortinetMigration/obj/Debug
+/JuniperMigration/obj/Debug
+/MigrationBase/obj/Debug
+/NetScreenMigration/obj/Debug
+/packages
+/PaloAltoMigration/obj/Debug
+/SmartMove/obj/Debug

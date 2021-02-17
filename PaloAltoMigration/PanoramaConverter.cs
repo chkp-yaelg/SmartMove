@@ -4044,5 +4044,72 @@ namespace PanoramaPaloAltoMigration
             Directory.Delete(outConfigsFolder, true);
             return devicesUIDDict;
         }
+
+        public override void ExportManagmentReport()
+        {
+            PanoramaAnalizStatistic panoramaAnalizStatistic = new PanoramaAnalizStatistic();
+            panoramaAnalizStatistic.CalculateRules(_cpPackages, _cpNatRules);
+            panoramaAnalizStatistic.CalculateNetworks(_cpNetworks, _cpNetworkGroups, _cpHosts, _cpRanges);
+            panoramaAnalizStatistic.CalculateServices(_cpTcpServices, _cpUdpServices, _cpSctpServices, _cpIcmpServices, _cpDceRpcServices, _cpOtherServices, _cpServiceGroups);
+
+            using (var file = new StreamWriter(VendorManagmentReportHtmlFile))
+            {
+                file.WriteLine("<html>");
+                file.WriteLine("<head>");
+                file.WriteLine("<style>");
+                file.WriteLine("  body { font-family: Arial; }");
+                file.WriteLine("  .report_table { border-collapse: separate;border-spacing: 0px; font-family: Lucida Console;}");
+                file.WriteLine("  td {padding: 5px; vertical-align: top}");
+                file.WriteLine("  .line_number {background: lightgray;}");
+                file.WriteLine("  .unhandeled {color: Fuchsia;}");
+                file.WriteLine("  .notimportant {color: Gray;}");
+                file.WriteLine("  .converterr {color: Red;}");
+                file.WriteLine("  .convertinfo {color: Blue;}");
+                file.WriteLine("  .err_title {color: Red;}");
+                file.WriteLine("  .info_title {color: Blue;}");
+                file.WriteLine("</style>");
+                file.WriteLine("</head>");
+
+                file.WriteLine("<body>");
+                file.WriteLine("<h2>Panorama managment report file</h2>");
+                file.WriteLine("<h3>OBJECTS DATABASE</h3>");
+
+                file.WriteLine("<table style='margin-bottom: 30px; background: rgb(250,250,250);'>");
+                file.WriteLine($"   <tr><td style='font-size: 14px;'></td> <td style='font-size: 14px;'>STATUS</td> <td style='font-size: 14px;'>COUNT</td> <td style='font-size: 14px;'>PERCENT</td> <td style='font-size: 14px;'>REMEDIATION</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Total Network Objects</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.TotalNetworkObjectsPercent, 100, 100)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._totalNetworkObjectsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.TotalNetworkObjectsPercent}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Unused Network Objects</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.UnusedNetworkObjectsPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._unusedNetworkObjectsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.UnusedNetworkObjectsPercent.ToString("F")}%</td> <td style='font-size: 14px;'>Consider deleting these objects.</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Duplicate Network Objects</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.DuplicateNetworkObjectsPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._duplicateNetworkObjectsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.DuplicateNetworkObjectsPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Nested Network Groups</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.NestedNetworkGroupsPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._nestedNetworkGroupsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.NestedNetworkGroupsPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine("</table>");
+
+                file.WriteLine("<h3>SERVICES DATABASE</h3>");
+                file.WriteLine("<table style='margin-bottom: 30px; background: rgb(250,250,250);'>");
+                file.WriteLine($"   <tr><td style='font-size: 14px;'></td> <td style='font-size: 14px;'>STATUS</td> <td style='font-size: 14px;'>COUNT</td> <td style='font-size: 14px;'>PERCENT</td> <td style='font-size: 14px;'>REMEDIATION</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Total Services Objects</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.TotalServicesObjectsPercent, 100, 100)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._totalServicesObjectsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.TotalServicesObjectsPercent}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Unused Services Objects</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.UnusedServicesObjectsPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._unusedServicesObjectsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.UnusedServicesObjectsPercent.ToString("F")}%</td> <td style='font-size: 14px;'>Consider deleting these objects.</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Duplicate Services Objects</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.DuplicateServicesObjectsPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._duplicateServicesObjectsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.DuplicateServicesObjectsPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Nested Services Groups</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.NestedServicesGroupsPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._nestedServicesGroupsCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.NestedServicesGroupsPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine("</table>");
+
+                file.WriteLine("<h3>POLICY ANALYSIS</h3>");
+                file.WriteLine("<table style='margin-bottom: 30px; background: rgb(250,250,250);'>");
+                file.WriteLine($"   <tr><td style='font-size: 14px;'></td> <td style='font-size: 14px;'>STATUS</td> <td style='font-size: 14px;'>COUNT</td> <td style='font-size: 14px;'>PERCENT</td> <td style='font-size: 14px;'>REMEDIATION</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Total Rules</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.TotalServicesRulesPercent, 100, 100)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._totalServicesRulesCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.TotalServicesRulesPercent}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Rules utilizing \"Any\"</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.RulesServicesutilizingServicesAnyPercent, 5, 15)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._rulesServicesutilizingServicesAnyCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.RulesServicesutilizingServicesAnyPercent.ToString("F")}%</td> <td style='font-size: 14px;'>- ANY in Source: {panoramaAnalizStatistic._rulesServicesutilizingServicesAnySourceCount}</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'></td> <td style='font-size: 14px;'></td> <td style='font-size: 14px;'></td> <td style='font-size: 14px;'></td> <td style='font-size: 14px;'>- ANY in Source: {panoramaAnalizStatistic._rulesServicesutilizingServicesAnyDestinationCount} </td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'></td> <td style='font-size: 14px;'></td> <td style='font-size: 14px;'></td> <td style='font-size: 14px;'></td> <td style='font-size: 14px;'>- ANY in Service: {panoramaAnalizStatistic._rulesServicesutilizingServicesAnyServiceCount}</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Disabled Rules</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.DisabledServicesRulesPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._disabledServicesRulesCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.DisabledServicesRulesPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td>Check if rules are required.</tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Unnamed Rules</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.UnnamedServicesRulesPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._unnamedServicesRulesCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.UnnamedServicesRulesPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td>Naming rules helps log analysis.</tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Times Rules</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.TimesServicesRulesPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._timesServicesRulesCount}</td> <td style='font-size: 14px;'{panoramaAnalizStatistic.TimesServicesRulesPercent.ToString("F")}>%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Non Logging Rules</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.NonServicesLoggingServicesRulesPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._nonServicesLoggingServicesRulesCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.NonServicesLoggingServicesRulesPercent.ToString("F")}%</td> <td style='font-size: 14px;'>Consider deleting these objects.</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Stealth Rule</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.StealthServicesRulePercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._stealthServicesRuleCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.StealthServicesRulePercent.ToString("F")}%</td> <td style='font-size: 14px;'>Found</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Cleanup Rule</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.CleanupServicesRulePercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._cleanupServicesRuleCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.CleanupServicesRulePercent.ToString("F")}%</td> <td style='font-size: 14px;'>Found</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Uncommented Rules</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.UncommentedServicesRulesPercent, 100, 100)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._uncommentedServicesRulesCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.UncommentedServicesRulesPercent.ToString("F")}%</td> <td style='font-size: 14px;'>Comment rules for better tracking and change management compliance.</td></tr>");
+                file.WriteLine($"   <tr><td style='font-size: 14px; color: Black;'>Optimization Potential</td> <td style='font-size: 14px;'>{ChoosePict(panoramaAnalizStatistic.OptimizationServicesPotentialPercent, 5, 25)}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic._optimizationServicesPotentialCount}</td> <td style='font-size: 14px;'>{panoramaAnalizStatistic.OptimizationServicesPotentialPercent.ToString("F")}%</td> <td style='font-size: 14px;'></td></tr>");
+                file.WriteLine("</table>");
+                file.WriteLine("</body>");
+                file.WriteLine("</html>");
+            }
+        }
     }
 }
