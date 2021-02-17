@@ -1305,7 +1305,9 @@ namespace MigrationBase
         {
             if (package?.SubPolicies != null && package.SubPolicies.Count > SubPoliciesMaxNumber)
             {
-                throw new InvalidDataException("Policy exceeds the maximum number of supported policy layers.");
+                throw new InvalidDataException(String.Format("{1} {2}{0}{3}", Environment.NewLine + "\t", "SmartMove is unable to convert the provided policy.",
+                "Reason: Policy exceeds the maximum number of supported policy layers.",
+                "To assure the smooth conversion of your data, it is recommended to contact Check Point Professional Services by sending an e-mail to ps@checkpoint.com"));
             }
         }
 
