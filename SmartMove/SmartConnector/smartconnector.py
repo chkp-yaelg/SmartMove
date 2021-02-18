@@ -327,6 +327,7 @@ def processNetworks(client, userNetworks):
     publishUpdate(publishCounter, True)
     return mergedNetworksNamesMap
 
+
 # a helper function for sorting networks by mask
 def sort_by_mask(network):
     return network['Netmask']
