@@ -71,7 +71,7 @@ namespace SmartMove
             DependencyProperty.Register("MessageLinkValue", typeof(string), typeof(MessageWindow), new PropertyMetadata(null));
 
         #endregion
-
+		
         #region MessageType
 
         public MessageTypes MessageType
