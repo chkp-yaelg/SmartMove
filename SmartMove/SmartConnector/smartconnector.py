@@ -305,7 +305,7 @@ def processNetworks(client, userNetworks):
     printMessageProcessObjects("networks")
     publishCounter = 0
     mergedNetworksNamesMap = {}
-    userNetworks = sorted(userNetworks, key=sort_by_mask, reversed=True)
+    userNetworks = sorted(userNetworks, key=sort_by_mask, reverse=True)
     if len(userNetworks) == 0:
         return mergedNetworksNamesMap
     for userNetwork in userNetworks:
