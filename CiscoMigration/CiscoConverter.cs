@@ -35,6 +35,12 @@ namespace CiscoMigration
     /// </summary>
     public class CiscoConverter : VendorConverter
     {
+        #region GUI params
+
+        public bool OptimizeConf { get; set; } //check if Optimized configuration is requested
+
+        #endregion
+
         #region Helper Classes
 
         private class DuplicateNameInfo

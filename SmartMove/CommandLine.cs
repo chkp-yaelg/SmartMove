@@ -470,7 +470,9 @@ namespace SmartMove
             switch (commandLine.Vendor)
             {
                 case "CiscoASA":                    
-                    vendorConverter = new CiscoConverter();
+                    CiscoConverter cConverter = new CiscoConverter();
+                    cConverter.OptimizeConf = commandLine.DontImportUnusedObjects;
+                    vendorConverter = cConverter;
                     break;
                 case "JuniperSRX":
                     vendorConverter = new JuniperConverter();

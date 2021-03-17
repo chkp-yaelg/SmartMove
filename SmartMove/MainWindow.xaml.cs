@@ -279,6 +279,7 @@ namespace SmartMove
             {
                 case Vendor.CiscoASA:
                     ConfigurationFileLabel = SupportedVendors.CiscoConfigurationFileLabel;
+                    SkipUnusedObjects.Visibility = Visibility.Visible;
                     break;
                 case Vendor.JuniperJunosOS:
                     ConfigurationFileLabel = SupportedVendors.JuniperConfigurationFileLabel;
@@ -576,7 +577,9 @@ namespace SmartMove
             switch (_supportedVendors.SelectedVendor)
             {
                 case Vendor.CiscoASA:
-                    vendorConverter = new CiscoConverter();
+                    CiscoConverter ciscoConverter = new CiscoConverter();
+                    ciscoConverter.OptimizeConf = SkipUnusedObjectsConversion;
+                    vendorConverter = ciscoConverter;
                     break;
                 case Vendor.JuniperJunosOS:
                     vendorConverter = new JuniperConverter();
