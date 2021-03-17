@@ -62,7 +62,7 @@ namespace CheckPointObjects
 
             for (int i = 0; i < newLayer.Rules.Count; ++i)
             {
-                newLayer.Rules[i].ConversionComments = OptimizeConverstionComments(newLayer.Rules[i].ConversionComments);
+                newLayer.Rules[i].ConversionComments = OptimizeConversionComments(newLayer.Rules[i].ConversionComments);
             }
 
             return newLayer;
@@ -225,7 +225,7 @@ namespace CheckPointObjects
         /// </summary>
         /// <param name="commentToProcess">comment to process</param>
         /// <returns>optimized comment at the right format</returns>
-        private static string OptimizeConverstionComments(string commentToProcess)
+        private static string OptimizeConversionComments(string commentToProcess)
         {
             string commentBuilder = "optimized of access-list";
             List<string> rules = new List<string>();
