@@ -6,6 +6,7 @@ import json
 import os
 import re
 import operator
+import uuid
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 from cpapi import APIClient, APIClientArgs
@@ -95,6 +96,8 @@ def isIpDuplicated(res_add_obj):
         messagePrefixes = ("Multiple objects have the same IP address",)
         messagePrefixes += ("More than one network have the same IP",)
         messagePrefixes += ("More than one network has the same IP",)
+        messagePrefixes += ("More than one object have the same IPv6",)
+        messagePrefixes += ("More than one object has the same IPv6",)
         for msg in res_add_obj.data['warnings']:
             if msg['message'].startswith(messagePrefixes):
                 isIpDuplicated = True
@@ -175,9 +178,14 @@ def addCpObjectWithIpToServer(client, payload, userObjectType, userObjectIp, mer
                 printStatus(res_get_obj_with_ip, None)
                 if res_get_obj_with_ip.success is True:
                     if len(res_get_obj_with_ip.data) > 0:
-                        if userObjectType == "network" and next((x for x in res_get_obj_with_ip.data if x['subnet'] == payload['subnet']), None) is None:
+                        if userObjectType == "network" and next((x for x in res_get_obj_with_ip.data if x['subnet4' if is_valid_ipv4(payload['subnet']) else 'subnet6'] == payload['subnet']), None) is None:
                             isIgnoreWarnings = True
                         else:
+                            if userObjectType == "host":
+                                mergedObjectsNamesMap[userObjectNameInitial] = res_get_obj_with_ip.data[0]['name']
+                                printStatus(None, "REPORT: " + "CP object " + mergedObjectsNamesMap[userObjectNameInitial] + " is used instead of " + userObjectNameInitial)
+                                isFinished = True
+                            break
                             for serverObject in res_get_obj_with_ip.data:
                                 mergedObjectsNamesMap[userObjectNameInitial] = serverObject['name']
                                 if (isServerObjectLocal(serverObject) and not isReplaceFromGlobalFirst) or (isServerObjectGlobal(serverObject) and isReplaceFromGlobalFirst):
@@ -208,22 +216,34 @@ def addCpObjectWithIpToServer(client, payload, userObjectType, userObjectIp, mer
 # mergedGroupsNamesMap - the map which contains name of user's object (key) and name of resulting object (value)
 # ---
 # returns: updated mergedGroupsNamesMap
-def processGroupWithMembers(client, apiCommand, userGroup, mergedObjectsMap, mergedGroupsNamesMap):
-    for i, userGroupMember in enumerate(userGroup['Members']):
-        if userGroupMember in mergedObjectsMap:
-            userGroup['Members'][i] = mergedObjectsMap[userGroupMember]
-        elif userGroupMember in mergedGroupsNamesMap:
-            userGroup['Members'][i] = mergedGroupsNamesMap[userGroupMember]
-    addedGroup = addUserObjectToServer(
-        client,
-        apiCommand,
-        {
+def processGroupWithMembers(client, apiCommand, userGroup, mergedObjectsMap, mergedGroupsNamesMap, isNeedSplitted):
+    apiSetCommand = "set-group"
+    addedGroup = None
+    if "time" in apiCommand:
+        apiSetCommand = "set-time-group"
+    elif "service" in apiCommand:
+        apiSetCommand = "set-service-group"
+    
+    if isNeedSplitted:
+        for i, userGroupMember in enumerate(userGroup['Members']):
+            print(userGroupMember)
+            res_add_obj = client.api_call(
+                apiSetCommand,
+                {
+                    "name": userGroup['Name'],                    
+                    "members": { "add" : userGroupMember }
+                })
+            printStatus(None, "REPORT: " + userGroup['Name'] + " is setted with new member " + str(userGroupMember))
+    else:
+        addedGroup = addUserObjectToServer(
+            client,
+            apiCommand,
+            {
             "name": userGroup['Name'],
-            "members": userGroup['Members'],
             "comments": userGroup['Comments'],
             "tags": userGroup['Tags']
-        }
-    )
+            }
+        )
     return addedGroup
 
 
@@ -528,11 +548,13 @@ def processNetGroups(client, userNetworkGroups, mergedNetworkObjectsMap):
         else:
             printStatus(None, "processing network group: " + userNetworkGroup['Name'])
             addedNetworkGroup = processGroupWithMembers(client, "add-group", userNetworkGroup, mergedNetworkObjectsMap,
-                                                        mergedGroupsNamesDict)
+                                                        mergedGroupsNamesDict, False)
         if addedNetworkGroup is not None:
             mergedGroupsNamesDict[userNetworkGroupNameInitial] = addedNetworkGroup['name']
             printStatus(None, "REPORT: " + userNetworkGroupNameInitial + " is added as " + addedNetworkGroup['name'])
-            publishCounter = publishUpdate(publishCounter, False)
+            publishCounter = publishUpdate(publishCounter, True)            
+            userNetworkGroup["Name"] = addedNetworkGroup['name']
+            processGroupWithMembers(client, "add-group", userNetworkGroup, mergedNetworkObjectsMap, mergedGroupsNamesDict, True)
         else:
             printStatus(None, "REPORT: " + userNetworkGroupNameInitial + " is not added.")
         printStatus(None, "")
@@ -760,11 +782,13 @@ def processServicesGroups(client, userServicesGroups, mergedServicesMap):
         printStatus(None, "processing services group: " + userServicesGroup['Name'])
         userServicesGroupNameInitial = userServicesGroup['Name']
         addedServicesGroup = processGroupWithMembers(client, "add-service-group", userServicesGroup, mergedServicesMap,
-                                                     mergedServicesGroupsNamesMap)
+                                                     mergedServicesGroupsNamesMap, False)
         if addedServicesGroup is not None:
             mergedServicesGroupsNamesMap[userServicesGroupNameInitial] = addedServicesGroup['name']
             printStatus(None, "REPORT: " + userServicesGroupNameInitial + " is added as " + addedServicesGroup['name'])
-            publishCounter = publishUpdate(publishCounter, False)
+            publishCounter = publishUpdate(publishCounter, True)
+            userServicesGroup["Name"] = addedServicesGroup['name']
+            processGroupWithMembers(client, "add-service-group", userServicesGroup, mergedServicesMap, mergedServicesGroupsNamesMap, True)
         else:
             printStatus(None, "REPORT: " + userServicesGroupNameInitial + " is not added.")
         printStatus(None, "")
@@ -776,10 +800,11 @@ def processServicesGroups(client, userServicesGroups, mergedServicesMap):
 # adjusting the name if time group with the name exists at server: <initial_object_name>_<postfix>
 # client - client object
 # userTimesGroups - the list of time groups which will be processed and added to server
+# mergedTimesNamesMap - the list of the time names
 # ---
 # returns: mergedTimesGroupsNamesMap dictionary
 # the map contains name of user's object (key) and name of resulting object (value)
-def processTimesGroups(client, userTimesGroups):
+def processTimesGroups(client, userTimesGroups, mergedTimesNamesMap):
     printMessageProcessObjects("times groups")
     publishCounter = 0
     mergedTimesGroupsNamesMap = {}
@@ -788,20 +813,14 @@ def processTimesGroups(client, userTimesGroups):
     for userTimesGroup in userTimesGroups:
         printStatus(None, "processing times group: " + userTimesGroup['Name'])
         userTimesGroupNameInitial = userTimesGroup['Name']
-        addedTimesGroup = addUserObjectToServer(
-            client,
-            "add-time-group",
-            {
-                "name": userTimesGroup['Name'],
-                "members": userTimesGroup['Members'],
-                "comments": userTimesGroup['Comments'],
-                "tags": userTimesGroup['Tags']
-            }
-        )
+        addedTimesGroup = processGroupWithMembers(client, "add-time-group", userTimesGroup, mergedTimesNamesMap,
+                                                     mergedTimesGroupsNamesMap, False)
         if addedTimesGroup is not None:
             mergedTimesGroupsNamesMap[userTimesGroupNameInitial] = addedTimesGroup['name']
             printStatus(None, "REPORT: " + userTimesGroupNameInitial + " is added as " + addedTimesGroup['name'])
-            publishCounter = publishUpdate(publishCounter, False)
+            publishCounter = publishUpdate(publishCounter, True)
+            userTimesGroup["Name"] = addedTimesGroup['name']
+            processGroupWithMembers(client, "add-time-group", userTimesGroup, mergedTimesNamesMap, mergedTimesGroupsNamesMap, True)
         else:
             printStatus(None, "REPORT: " + userTimesGroupNameInitial + ' is not added.')
         printStatus(None, "")
@@ -999,8 +1018,11 @@ def addAccessRules(client, userRules, userLayerName, skipCleanUpRule, mergedNetw
 def processPackage(client, userPackage, mergedNetworkObjectsMap, mergedServiceObjectsMap, mergedTimesGroupsNamesMap,
                    mergedTimesNamesMap):
     printMessageProcessObjects("package")
+    allExistingLayers = {}
     addedPackage = None
     if userPackage is not None:
+        original_package_name = userPackage['Name']
+        userPackage['Name'] = userPackage['Name'] + "_" + str(uuid.uuid4().hex[:3].upper())
         publishCounter = 0
         printStatus(None, "processing package: " + userPackage['Name'])
         addedPackage = addUserObjectToServer(
@@ -1021,7 +1043,15 @@ def processPackage(client, userPackage, mergedNetworkObjectsMap, mergedServiceOb
         publishCounter = publishUpdate(publishCounter, True)
         if userPackage['SubPolicies'] is not None:
             for userSubLayer in userPackage['SubPolicies']:
+                originalName = userSubLayer['Name']
+                userSubLayer['Name'] = userSubLayer['Name'] + "_" + str(uuid.uuid4().hex[:3].upper())
+                allExistingLayers[originalName] = userSubLayer['Name']
+                for rule in userSubLayer['Rules']:
+                    rule['Layer'] = userSubLayer['Name']
+                    if rule['SubPolicyName'] != "":
+                        rule['SubPolicyName'] = allExistingLayers[rule['SubPolicyName']]
                 printStatus(None, "processing access layer: " + userSubLayer['Name'])
+
                 addedSubLayer = addUserObjectToServer(
                     client,
                     "add-access-layer",
@@ -1043,6 +1073,11 @@ def processPackage(client, userPackage, mergedNetworkObjectsMap, mergedServiceOb
                 addAccessRules(client, userSubLayer['Rules'], userSubLayer['Name'], False, mergedNetworkObjectsMap,
                                mergedServiceObjectsMap, mergedTimesGroupsNamesMap, mergedTimesNamesMap)
         if userPackage['ParentLayer'] is not None:
+            userPackage['ParentLayer']['Name'] = userPackage['ParentLayer']['Name'].replace(original_package_name, userPackage['Name'])
+            for parentRule in userPackage['ParentLayer']['Rules']:
+                parentRule['Layer'] = userPackage['ParentLayer']['Name']
+                if parentRule['SubPolicyName'] != "":
+                    parentRule['SubPolicyName'] = allExistingLayers[parentRule['SubPolicyName']]
             addAccessRules(client, userPackage['ParentLayer']['Rules'], "parent", True, mergedNetworkObjectsMap,
                            mergedServiceObjectsMap, mergedTimesGroupsNamesMap, mergedTimesNamesMap)
     return addedPackage
@@ -1075,6 +1110,7 @@ def processNatRules(client, addedPackage, userNatRules, mergedNetworkObjectsMap,
         return
     publishCounter = 0
     for i, userNatRule in enumerate(userNatRules):
+        userNatRule['Package'] = addedPackage['name']
         printStatus(None, "processing nat rule: #" + str(i))
         sourceOrig = ""
         if userNatRule['Source'] is not None:
@@ -1320,8 +1356,8 @@ else:
                 mergedServicesObjectsMap.update(processServices(client, userServicesOther, "other"))
                 mergedServicesObjectsMap.update(
                     processServicesGroups(client, userServicesGroups, mergedServicesObjectsMap))
-                mergedTimesGroupsMap = processTimesGroups(client, userTimesGroups)
                 mergedTimesMap = processTimes(client, userTimes)
+                mergedTimesGroupsMap = processTimesGroups(client, userTimesGroups, mergedTimesMap)
                 addedPackage = processPackage(client, userPackage, mergedNetworkObjectsMap, mergedServicesObjectsMap,
                                               mergedTimesGroupsMap, mergedTimesMap)
                 processNatRules(client, addedPackage, userNatRules, mergedNetworkObjectsMap, mergedServicesObjectsMap)
